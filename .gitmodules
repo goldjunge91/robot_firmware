@@ -2,3 +2,5 @@
 	path = example_repo/micro_ros_raspberrypi_pico_sdk
 	url = https://github.com/micro-ROS/micro_ros_raspberrypi_pico_sdk.git
 	branch = humble
+[submodule "extra_packages/micro_ros_platformio"]
+	path = extra_packages/micro_ros_platformio
