@@ -1,10 +1,16 @@
 [submodule "example_repo/micro_ros_raspberrypi_pico_sdk"]
-	path = example_repo/micro_ros_raspberrypi_pico_sdk
-	url = https://github.com/micro-ROS/micro_ros_raspberrypi_pico_sdk.git
-	branch = humble
-
+    path = example_repo/micro_ros_raspberrypi_pico_sdk
+    url = https://github.com/micro-ROS/micro_ros_raspberrypi_pico_sdk.git
+    branch = humble
 [submodule "example_repo/rosbot_ros2_firmware"]
-	path = example_repo/rosbot_ros2_firmware
-	url = https://github.com/husarion/rosbot_ros2_firmware.git
-	branch = main
-
+    path = example_repo/rosbot_ros2_firmware
+    url = https://github.com/husarion/rosbot_ros2_firmware.git
+    branch = main
+[submodule "example_repo/micro_ros_platformio"]
+    path = example_repo/micro_ros_platformio
+    url = https://github.com/micro-ROS/micro_ros_platformio.git
+    branch = main
+[submodule "example_repo/micro_ros_arduino"]
+    path = example_repo/micro_ros_arduino
+    url = https://github.com/micro-ROS/micro_ros_arduino.git
+    branch = humble
