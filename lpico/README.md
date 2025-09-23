@@ -1,15 +1,11 @@
 # lpico Firmware
 
-This firmware is a port of the legacy STM32 firmware to the Raspberry Pi Pico.
+This directory contains the firmware for the Raspberry Pi Pico.
 
 ## Building the Firmware
 
-1.  Create a `build` directory: `mkdir build`
-2.  Navigate to the `build` directory: `cd build`
-3.  Run CMake: `cmake ..`
-4.  Run Make: `make`
-
-## Flashing the Firmware
-
-1.  Connect the Pico in BOOTSEL mode.
-2.  Copy the `lpico.uf2` file to the Pico's mass storage device.
+1.  Install the Pico SDK.
+2.  Set the `PICO_SDK_PATH` environment variable.
+3.  Create a `build` directory.
+4.  Run `cmake ..` from the `build` directory.
+5.  Run `make` from the `build` directory.

@@ -1,29 +1,36 @@
-#include "config.h"
+#include "pwm_control.h"
 #include "hardware/pwm.h"
+#include "config.h"
 
-void pwm_init(void) {
+void pwm_control_init(void) {
+    // Front left
     gpio_set_function(FL_PWM, GPIO_FUNC_PWM);
-    gpio_set_function(FR_PWM, GPIO_FUNC_PWM);
-    gpio_set_function(RL_PWM, GPIO_FUNC_PWM);
-    gpio_set_function(RR_PWM, GPIO_FUNC_PWM);
-
     uint slice_num_fl = pwm_gpio_to_slice_num(FL_PWM);
-    uint slice_num_fr = pwm_gpio_to_slice_num(FR_PWM);
-    uint slice_num_rl = pwm_gpio_to_slice_num(RL_PWM);
-    uint slice_num_rr = pwm_gpio_to_slice_num(RR_PWM);
-
-    pwm_set_wrap(slice_num_fl, 255);
-    pwm_set_wrap(slice_num_fr, 255);
-    pwm_set_wrap(slice_num_rl, 255);
-    pwm_set_wrap(slice_num_rr, 255);
-
+    pwm_set_wrap(slice_num_fl, PWM_MAX);
     pwm_set_enabled(slice_num_fl, true);
+
+    // Front right
+    gpio_set_function(FR_PWM, GPIO_FUNC_PWM);
+    uint slice_num_fr = pwm_gpio_to_slice_num(FR_PWM);
+    pwm_set_wrap(slice_num_fr, PWM_MAX);
     pwm_set_enabled(slice_num_fr, true);
+
+    // Rear left
+    gpio_set_function(RL_PWM, GPIO_FUNC_PWM);
+    uint slice_num_rl = pwm_gpio_to_slice_num(RL_PWM);
+    pwm_set_wrap(slice_num_rl, PWM_MAX);
     pwm_set_enabled(slice_num_rl, true);
+
+    // Rear right
+    gpio_set_function(RR_PWM, GPIO_FUNC_PWM);
+    uint slice_num_rr = pwm_gpio_to_slice_num(RR_PWM);
+    pwm_set_wrap(slice_num_rr, PWM_MAX);
     pwm_set_enabled(slice_num_rr, true);
 }
 
-void pwm_set_duty(uint8_t gpio_pin, uint16_t duty_cycle) {
-    uint slice_num = pwm_gpio_to_slice_num(gpio_pin);
-    pwm_set_chan_level(slice_num, pwm_gpio_to_channel(gpio_pin), duty_cycle);
+void pwm_control_update(robot_motors_t* motors) {
+    pwm_set_gpio_level(FL_PWM, motors->front_left.speed);
+    pwm_set_gpio_level(FR_PWM, motors->front_right.speed);
+    pwm_set_gpio_level(RL_PWM, motors->rear_left.speed);
+    pwm_set_gpio_level(RR_PWM, motors->rear_right.speed);
 }

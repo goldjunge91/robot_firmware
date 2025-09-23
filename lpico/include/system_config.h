@@ -3,11 +3,11 @@
 
 #include <stdint.h>
 
-#define PWM_MAX 255
-#define WATCHDOG_MS 300
-#define LOOP_MS 10
-#define DEADZONE_DEFAULT 30
-#define SLEW_DEFAULT 8
+#define PWM_MAX            255
+#define WATCHDOG_MS        300
+#define LOOP_MS            10
+#define DEADZONE_DEFAULT   30
+#define SLEW_DEFAULT       8
 
 typedef struct {
     uint8_t pwm_max;

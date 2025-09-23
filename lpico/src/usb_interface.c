@@ -1,14 +1,19 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
+#include "usb_interface.h"
 
-void usb_init(void) {
+void usb_interface_init(void) {
     stdio_init_all();
 }
 
-void usb_send_string(const char* s) {
-    printf("%s", s);
+void usb_interface_task(void) {
+    // USB CDC task is handled by stdio
 }
 
-void usb_get_string(char* buf, int len) {
-    fgets(buf, len, stdin);
+int usb_interface_get_command(char* buffer, int len) {
+    return scanf("%s", buffer);
+}
+
+void usb_interface_send_response(const char* response) {
+    printf("%s\n", response);
 }

@@ -1,30 +1,16 @@
 #include "pico/stdlib.h"
-
-// Forward declarations
-void usb_init(void);
-void motor_init(void);
-void pwm_init(void);
-void encoder_init(void);
-void shooter_init(void);
-void watchdog_init(void);
-void control_loop_init(void);
-void process_command(char* command);
-void usb_get_string(char* buf, int len);
+#include "usb_interface.h"
+#include "control_loop.h"
+#include "command_processor.h"
+#include "watchdog_manager.h"
 
 int main() {
-    usb_init();
-    motor_init();
-    pwm_init();
-    encoder_init();
-    shooter_init();
-    watchdog_init();
+    usb_interface_init();
     control_loop_init();
+    watchdog_manager_init();
 
-    char command[128];
-
-    while (1) {
-        usb_get_string(command, 128);
-        process_command(command);
+    while (true) {
+        command_processor_task();
     }
 
     return 0;
