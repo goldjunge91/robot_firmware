@@ -1,18 +1,17 @@
-#include <Arduino.h>
-
-extern "C" {
+#include "pico/stdlib.h"
 #include "usb_interface.h"
 #include "control_loop.h"
 #include "command_processor.h"
 #include "watchdog_manager.h"
-}
 
-void setup() {
+int main() {
     usb_interface_init();
     control_loop_init();
     watchdog_manager_init();
-}
 
-void loop() {
-    command_processor_task();
+    while (true) {
+        command_processor_task();
+    }
+
+    return 0;
 }
