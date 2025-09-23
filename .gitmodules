@@ -1,0 +1,3 @@
+[submodule "lpico_pio/lib/micro_ros_platformio"]
+	path = lpico_pio/lib/micro_ros_platformio
+	url = https://github.com/micro-ROS/micro_ros_platformio.git

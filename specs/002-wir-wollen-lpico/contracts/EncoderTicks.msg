@@ -1,0 +1,4 @@
+int32 motor_fl_encoder
+int32 motor_fr_encoder
+int32 motor_rl_encoder
+int32 motor_rr_encoder

@@ -1,0 +1,15 @@
+# Enforce Unix-style line endings for consistency across platforms
+* text=auto eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+
+# Python scripts
+*.py text eol=lf
+
+# CMake files
+*.cmake text eol=lf
+*.cmake.in text eol=lf
+
+# Other templates
+*.in text eol=lf

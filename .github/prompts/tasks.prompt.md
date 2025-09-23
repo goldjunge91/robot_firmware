@@ -35,6 +35,7 @@ $ARGUMENTS
    - Each entity in data-model → model creation task marked [P]
    - Each endpoint → implementation task (not parallel if shared files)
    - Each user story → integration test marked [P]
+   - Each scenario in quickstart.md → integration test task marked [P]
    - Different files = can be parallel [P]
    - Same file = sequential (no [P])
 
