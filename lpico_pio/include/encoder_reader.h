@@ -3,20 +3,31 @@
 
 #include "motor_types.h"
 
-typedef struct {
-    volatile int32_t count;
-    volatile uint32_t last_update_ms;
-    uint8_t direction;
-} encoder_state_t;
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-typedef struct {
-    encoder_state_t front_left;
-    encoder_state_t front_right;
-    encoder_state_t rear_left;
-    encoder_state_t rear_right;
-} robot_encoders_t;
+    typedef struct
+    {
+        volatile int32_t count;
+        volatile uint32_t last_update_ms;
+        uint8_t direction;
+    } encoder_state_t;
 
-void encoder_reader_init(void);
-void encoder_reader_update(robot_encoders_t* encoders);
+    typedef struct
+    {
+        encoder_state_t front_left;
+        encoder_state_t front_right;
+        encoder_state_t rear_left;
+        encoder_state_t rear_right;
+    } robot_encoders_t;
+
+    void encoder_reader_init(void);
+    void encoder_reader_update(robot_encoders_t *encoders);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // ENCODER_READER_H

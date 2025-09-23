@@ -3,7 +3,17 @@
 
 #include "motor_types.h"
 
-void control_loop_init(void);
-robot_motors_t* control_loop_get_motors(void);
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+    void control_loop_init(void);
+    void control_loop_update(void);
+    robot_motors_t *control_loop_get_motors(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // CONTROL_LOOP_H

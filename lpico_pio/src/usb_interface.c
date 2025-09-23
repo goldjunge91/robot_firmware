@@ -1,9 +1,7 @@
 #include <stdio.h>
-#include "pico/stdlib.h"
 #include "usb_interface.h"
 
 void usb_interface_init(void) {
-    stdio_init_all();
 }
 
 void usb_interface_task(void) {

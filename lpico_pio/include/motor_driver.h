@@ -3,8 +3,17 @@
 
 #include "motor_types.h"
 
-void motor_driver_init(void);
-void motor_driver_set_speed(motor_state_t* motor, int16_t speed);
-void motor_driver_update(robot_motors_t* motors);
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+    void motor_driver_init(void);
+    void motor_driver_set_speed(motor_state_t *motor, int16_t speed);
+    void motor_driver_update(robot_motors_t *motors);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // MOTOR_DRIVER_H

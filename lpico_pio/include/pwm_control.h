@@ -3,7 +3,16 @@
 
 #include "motor_types.h"
 
-void pwm_control_init(void);
-void pwm_control_update(robot_motors_t* motors);
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+    void pwm_control_init(void);
+    void pwm_control_update(robot_motors_t *motors);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // PWM_CONTROL_H

@@ -12,8 +12,6 @@
 #ifndef MOTORS_H
 #define MOTORS_H
 
-#include <Arduino.h>
-#include <STM32FreeRTOS.h>
 #include <bsp.h>
 
 #define M1_ENC_TIM TIM1
