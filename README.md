@@ -1,97 +1,56 @@
 # robot_firmware
-
-Firmware for the robot digital board (Raspberry Pi Pico).
-
-This directory holds the Pico firmware used as the digital board (encoders, motor drivers, IMU bridge, micro-ROS client).
-
-Quick links and references
-- micro-ROS agent (Docker): https://github.com/husarion/micro-ros-agent-docker
-- micro-ROS Agent repo: https://github.com/husarion/micro-ROS-Agent
-- micro-ROS Pico SDK: https://github.com/micro-ROS/micro_ros_raspberrypi_pico_sdk
-
-## Firmware layout (micro-ROS client)
-- `firmware/mecabridge_pico/` — CMake-based Pico project with micro-ROS integration
-  - `src/config.h` — authoritative pin map (mirrors `PINMAP.md`)
-  - `src/motor_controller.*` — TB6612FNG motor driver routines using `PWM_MAX`, `OFFSET_*`, and trims
-  - `src/encoder_reader.*` — quadrature decoder (GPIO interrupt based) feeding the ROS publisher
-  - `src/micro_ros_support.*` — wraps the rclc entities (USB transport, publisher/subscriber, watchdog)
-
-## Build (CMake toolchain)
-1. Install the Pico SDK toolchain (`cmake`, `ninja`, `gcc-arm-none-eabi`, `picotool`).
-2. Clone the SDKs and export the paths in your shell profile:
+## Overview
+This package now targets two firmware generations:
+- **`pico/`** – active Raspberry Pi Pico (RP2040) port using the Pico SDK and micro-ROS.
+- **`legacy_stm32/`** – frozen STM32F4 firmware kept for reference while we migrate drivers and ROS interfaces.
+All new development happens inside `pico/`. The legacy sources remain untouched so we can cross-check behaviours during the port.
+## RP2040 firmware (current work)
+### Layout
+```
+pico/
+  CMakeLists.txt               # Pico SDK + micro-ROS build script
+  pico_sdk_import.cmake        # Toolchain bootstrap (copied from setup_pico_sdk.sh)
+  micro_ros_pico_sdk_import.cmake
+  include/                     # Hardware abstraction headers
+  src/                         # Firmware entry point + subsystem scaffolding
+```
+Key modules:
+- `hardware_cfg.h` – pin mapping derived from `PINMAP.md`.
+- `motors.*` – PWM + H-bridge control (PID TODO).
+- `encoder_reader.*` – quadrature capture stub (PIO implementation pending).
+- `ImuLib_cfg.*` – BNO055 I2C driver stub.
+- `micro_ros_cfg.*` – micro-ROS publishers, subscribers, watchdog, services.
+- `PixelLedLib_cfg.*` – WS2812 status LED skeleton.
+- `UartLib.*` – optional UART telemetry channel (stub).
+### Build & flash
+1. Initialise the Pico SDK (once per checkout):
    ```bash
-   export PICO_SDK_PATH=/opt/pico-sdk
-   export MICRO_ROS_PICO_SDK_PATH=/opt/micro_ros_raspberrypi_pico_sdk
+   ./setup_pico_sdk.sh
    ```
-3. Configure and build:
+2. Configure and build:
    ```bash
-   cd src/robot_firmware/firmware/mecabridge_pico
-   cmake -B build -G Ninja
-   cmake --build build
+   cmake -S src/robot_firmware/pico -B build/robot_firmware_pico
+   cmake --build build/robot_firmware_pico
    ```
-4. Flash via USB bootloader (`BOOTSEL` mode):
+3. Flash (with Pico in BOOTSEL mode):
    ```bash
-   picotool load -f build/mecabridge_pico.uf2
+   picotool load -f build/robot_firmware_pico/robot_firmware_pico.uf2
    ```
-
-See `install.md` for the full installation walkthrough (SDK clone, environment exports, agent launch) and `next_steps.md` for the firmware task backlog.
-
-micro-ROS interface
-- Subscribes: `wheel_pwm` (`std_msgs/msg/Int32MultiArray`, 4 entries for FL/FR/RL/RR PWM commands)
-- Publishes: `encoder_ticks` (`std_msgs/msg/Int32MultiArray`, encoder counts in tick units)
-- Transport: USB-CDC by default (uses `set_microros_usb_transports()` from the micro-ROS Pico SDK). Define `MICRO_ROS_USE_UART_TRANSPORT` at configure time to switch to UART.
-- Watchdog: motors are stopped if no command arrives within `WATCHDOG_MS` (300 ms).
-
-Build
-- See the `mecabridge_pico` subfolder for a CMake build wrapper. You may need to clone the Raspberry Pi Pico SDK and micro-ROS pico SDK into the paths expected by the CMakeLists.
-
-```markdown name=robot_firmware/README.md
-```markdown
-# robot_firmware (Raspberry Pi Pico)
-
-Kurz: Firmware für das Digital‑Board (Raspberry Pi Pico). Implementiert Encoder‑Lesung, Motorsteuerung, Sicherheits‑Watchdog und das Host‑Protokoll (USB‑CDC oder UART). Optional: micro-ROS Client.
-
-Wichtige Verzeichnisse
-- src/        — Haupt‑Quellcode (C / C++ / pico-sdk oder PlatformIO)
-- include/    — Header & pinmap (pinmap.h)
-- platformio.ini oder CMakeLists.txt — Build-Konfiguration
-- docs/       — Protokoll & Board‑Spezifikationen
-- README.md   — dieses Dokument
-
-Schnellstart (Lokaler Build + Flash)
-1) Voraussetzungen
-   - PlatformIO oder Pico SDK Toolchain (cmake + arm gcc)
-   - pyserial, esptool (je nach Board/usb)
-
-2) Build & Flash (PlatformIO Beispiel)
-   platformio run -e pico
-   platformio run -t upload -e pico --upload-port /dev/ttyACM0
-
-3) Flash Script (empfohlen)
-   ./scripts/flash_firmware.sh --device /dev/ttyACM0 --board robot_pico
-
-Kommunikationsprotokoll
-- Host -> Pico: ASCII framed, Beispiel: `S v0 v1 v2 v3\r\n` (wheel velocities in rad/s)
-- Pico -> Host: Encoder report: `R e0 e1 e2 e3 ts\r\n`
-- Optional: CRC8 optional vor `\r\n`
-
-Testing
-- Unit tests (Host) mit simulierten encoder packets
-- Integration: Host (ros2_control) gegen Pico im loopback / Hardware-in-the-loop
-
-Wichtig: PINMAP.md in repo root ist autoritativ — halte board_config.h synchron.
-
-## Analysis and recommended next steps
-
-I created `firmware/mecabridge_pico/src/config.h` with the pinmap you provided. This pin mapping should be used by the Pico firmware sources (motor control, encoder ISR, ESC control).
-
-Recommended immediate actions:
-- Scaffold a minimal `CMakeLists.txt` and `main.c` that include `config.h` and implement a micro-ROS node which:
-  - publishes encoder counts (e.g., as sensor_msgs/Int32MultiArray or a custom message)
-  - subscribes to a velocity or PWM command topic and applies PWM to the TB6612 pins
-- Decide how the Pico will expose micro-ROS transport to the host: USB CDC (recommended) or UART. USB CDC is convenient because the Pico enumerates as a serial device over USB.
-- On the host (Raspberry Pi): run the micro-ROS agent. Docker image from Husarion is the easiest path. Make sure the Docker container has access to the Pico's serial device (use `--device /dev/ttyACM0`).
-- Add a udev rule on the host to create a stable symlink for the Pico, e.g. `/dev/robot_pico`.
-
-If you want, I can now scaffold the minimal `CMakeLists.txt` and `main.c` and add a tiny example publisher/subscriber using micro-ROS for Pico. Do you want me to scaffold the firmware app now?
-````
+   or use the convenience target:
+   ```bash
+   cmake --build build/robot_firmware_pico --target flash_robot_firmware
+   ```
+### Status
+- Working: micro-ROS scaffolding compiles (publishers/subscribers/services wired up).
+- Working: Motor PWM + direction GPIO initialisation.
+- Pending: Encoder, IMU, power board, pixel strip logic still stubbed with TODOs.
+- Pending: PID loop and watchdog enforcement pending hardware bring-up.
+Track open porting items in `docs/robot_firmware_pico_port_plan.md`.
+## Legacy STM32 firmware
+The original STM32F4 codebase now lives in `legacy_stm32/` untouched. All PlatformIO, FreeRTOS tasks, and Husarion-specific integrations remain there for reference.
+To rebuild or debug the historical firmware, cd into `legacy_stm32/` and use the existing PlatformIO workflow. No further updates are planned.
+## Contribution guide
+- Keep `PINMAP.md` aligned with `hardware_cfg.h` before wiring changes.
+- Extend or replace the stub implementations before enabling features in ROS bringup.
+- Document new hardware requirements inside `docs/` alongside firmware changes.
+- Use conventional commits (`feat:`, `fix:`, etc.) and run `just clean` before pushing artifacts.
