@@ -4,3 +4,5 @@
 	branch = humble
 [submodule "extra_packages/micro_ros_platformio"]
 	path = extra_packages/micro_ros_platformio
+[submodule "extra_packages/micro_ros_raspberrypi_pico_sdk"]
+	path = extra_packages/micro_ros_raspberrypi_pico_sdk
