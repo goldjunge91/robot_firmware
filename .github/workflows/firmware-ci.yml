@@ -1,0 +1,14 @@
+# Placeholder CI workflow for firmware builds (T006)
+name: Firmware CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Placeholder - set up toolchain
+        run: echo "Setup cross toolchain here"
+      - name: Placeholder - build
+        run: echo "Build steps for firmware (CMake for Pico) go here"
