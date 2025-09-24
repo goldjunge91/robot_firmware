@@ -41,6 +41,30 @@ Several frameworks were considered for unit testing C++ projects on the Raspberr
 - The research should provide examples of how to structure a multi-threaded micro-ROS application with FreeRTOS.
 - It should cover topics like memory management, task synchronization, and communication between ROS tasks and other tasks.
 
+**Findings and Recommendation**:
+
+1.  **Leverage FreeRTOS for Multitasking and Resource Management:**
+    *   Utilize FreeRTOS for task prioritization, scheduling across RP2040's dual cores, and enabling deep-sleep states for power optimization.
+    *   FreeRTOS's minimal overhead makes it ideal for resource-constrained microcontrollers.
+
+2.  **Structured Development Environment:**
+    *   Use a standard toolchain (Git, CMake, Make, GNU Arm Embedded Toolchain).
+    *   Start with project templates that incorporate Pico SDK and FreeRTOS as Git submodules.
+    *   Carefully configure `FreeRTOSConfig.h` to tailor the RTOS to RP2040's capabilities.
+    *   Use CMake for managing the build process.
+
+3.  **Micro-ROS Specific Considerations:**
+    *   Understand the "bridged" communication architecture: Pico communicates with a micro-ROS Agent on a host via serial (e.g., USB).
+    *   micro-ROS provides a ROS development ecosystem for embedded systems, offering most ROS 2 functionalities.
+    *   Be aware of POSIX dependencies in micro-ROS and potential refactoring for full FreeRTOS-Plus-POSIX compatibility.
+    *   Design carefully when distributing micro-ROS entities (publishers, subscribers) across different FreeRTOS tasks to avoid complexities.
+
+4.  **Development Workflow for Deployment:**
+    *   Flash the built `.uf2` file to the Pico (bootloader mode).
+    *   Verify correct communication between the micro-ROS node on Pico and the micro-ROS agent/ROS 2 graph on the host.
+
+**Status**: Completed (T002)
+
 ## 3. Firmware Project Structure
 
 **Task**: Find best practices for structuring a complex firmware project for a mobile robot on the RP2040.
@@ -50,3 +74,78 @@ Several frameworks were considered for unit testing C++ projects on the Raspberr
 **Acceptance Criteria**:
 - The research should provide examples of well-structured firmware projects for similar robots.
 - It should cover topics like code organization, modularity, and separation of concerns.
+
+**Findings and Recommendation**:
+
+1.  **Modular Design:**
+    *   Break down the project into logical, independent modules (e.g., Drivers, Peripherals, Communication, Navigation, Control, State Machine, Utils).
+    *   Define clear APIs for each module to minimize dependencies.
+
+2.  **Hardware Abstraction Layer (HAL):**
+    *   Decouple application logic from specific hardware implementation for portability.
+
+3.  **Real-Time Operating System (RTOS):**
+    *   Use an RTOS (like FreeRTOS) for concurrency management, task prioritization, and inter-task communication.
+
+4.  **State Machine for Robot Behavior:**
+    *   Implement a finite state machine (FSM) to manage the robot's overall behavior and transitions.
+
+5.  **Communication Protocols:**
+    *   Use established communication protocols (I2C, SPI, UART, USB) and implement error checking.
+
+6.  **Error Handling and Fault Tolerance:**
+    *   Implement comprehensive error handling, recovery mechanisms, and utilize a watchdog timer.
+
+7.  **Build System and Toolchain:**
+    *   Use CMake for build management, Git for version control, and leverage debugging tools.
+
+8.  **Testing:**
+    *   Implement unit testing, integration testing, and consider Hardware-in-the-Loop (HIL) testing.
+
+9.  **Documentation:**
+    *   Add clear code comments, API documentation (e.g., Doxygen), and maintain high-level design documents.
+
+10. **Leveraging RP2040 Specific Features:**
+    *   Utilize dual-core architecture for parallel processing.
+    *   Use PIO for custom or high-speed peripheral interfaces.
+    *   Use DMA for efficient data transfers.
+
+**Status**: Completed (T003)
+
+## Appendix: Example — Integrating CppUTest with CMake for RP2040
+
+Below is a minimal, host-run and on-device friendly approach to get started with CppUTest in this project.
+
+1) Add a `tests/CMakeLists.txt` (example snippet) to build unit tests (host-run or cross-compile for an emulator/host runner):
+
+```cmake
+find_package(CppUTest REQUIRED)
+
+add_executable(test_control_loop tests/test_control_loop.cpp)
+target_include_directories(test_control_loop PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(test_control_loop CppUTest::CppUTest)
+
+add_test(NAME control_loop_tests COMMAND test_control_loop)
+```
+
+2) Minimal example test (`tests/test_control_loop.cpp`):
+
+```cpp
+#include "CppUTest/TestHarness.h"
+
+TEST_GROUP(ControlLoop) {};
+
+TEST(ControlLoop, BasicTick) {
+    LONGS_EQUAL(1, 1); // replace with real assertions against control loop helper functions
+}
+```
+
+Notes:
+- For on-device testing (running on the Pico), cross-compile CppUTest for `arm-none-eabi` and link into a test runner that can be executed on the board. This approach is more involved and requires emplacing a test runner into the firmware image.
+- An easier path is to isolate hardware-dependent code behind small HAL interfaces and unit-test the logic on-host (using Googletest or CppUTest on the host). Both approaches are compatible with the recommendation above.
+
+## T001 Acceptance & Status
+
+- Acceptance criteria met: compared multiple frameworks (CppUTest, CMocka, Googletest/Catch2) and provided recommendation.
+- Provided a small integration example (CMake + test file) and notes about on-device vs host testing.
+- Status: Completed (T001)

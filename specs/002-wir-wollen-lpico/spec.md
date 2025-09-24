@@ -60,7 +60,7 @@ When creating this spec from a user prompt:
 As a developer, I want to have a new `lpico_pio` project structure that uses the build system from `micro_ros_raspberrypi_pico_sdk` so that I can build the firmware reliably. The new project should incorporate the logic from our existing `rosbot_ros2_firmware` revision and be compliant with the project's architecture and pin mappings.
 
 ### Acceptance Scenarios
-1. **Given** a clean checkout of the new `lpico_pio` project, **When** I run the build script, **Then** the firmware image is created successfully without errors.
+1. **Given** a clean checkout of the new `.old/lpico_pio` project, **When** I run the build script, **Then** the firmware image is created successfully without errors.
 2. **Given** the new `lpico_pio` project, **When** I compare its structure to `example_repo/rosbot_ros2_firmware`, **Then** the structure is similar in terms of source code organization.
 3. **Given** the flashed firmware, **When** I interact with it using ROS2 tools, **Then** it correctly publishes and subscribes to the topics defined in `architecture_and_packages.md`.
 
