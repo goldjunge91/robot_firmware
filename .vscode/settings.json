@@ -1,3 +1,6 @@
 {
-    "cmake.sourceDirectory": "C:/GIT/my_steel-robot_ws/src/robot_firmware/example_repo/micro_ros_raspberrypi_pico_sdk"
+    "cmake.sourceDirectory": "C:/GIT/my_steel-robot_ws/src/robot_firmware/example_repo/micro_ros_raspberrypi_pico_sdk",
+    "C_Cpp.default.compileCommands": "C:/GIT/my_steel-robot_ws/src/robot_firmware/example_repo/micro_ros_raspberrypi_pico_sdk/build/compile_commands.json",
+    "cmake.allowCommentsInPresetsFile": false,
+    "files.eol": "\n"
 }
