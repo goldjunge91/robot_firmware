@@ -11,7 +11,7 @@ The Raspberry Pi Pico firmware exposes a line-based ASCII command protocol over 
 
 ## Command Format
 
-```
+```text
 <COMMAND> [<PARAM1>:<VALUE1>] [<PARAM2>:<VALUE2>] ...\n
 ```
 
@@ -26,7 +26,8 @@ The Raspberry Pi Pico firmware exposes a line-based ASCII command protocol over 
 ### 1. Motor Control Commands
 
 #### Set Motor Speeds
-```
+
+```text
 Command: M FL:<speed> FR:<speed> RL:<speed> RR:<speed>
 Parameters:
   - FL: Front-left motor speed (-255 to +255)
@@ -43,7 +44,8 @@ Example:
 ```
 
 #### Emergency Stop
-```
+
+```text
 Command: STOP
 Parameters: None
 
@@ -57,7 +59,8 @@ Example:
 ### 2. Shooter Control Commands
 
 #### Fire Sequence
-```
+
+```text
 Command: FIRE
 Parameters: None
 
@@ -70,7 +73,8 @@ Example:
 ```
 
 #### ESC Control
-```
+
+```text
 Command: ESC ESC1:<state> ESC2:<state>
 Parameters:
   - ESC1: ESC1 enable state (0=disabled, 1=enabled)
@@ -85,7 +89,8 @@ Example:
 ```
 
 #### Gear Position
-```
+
+```text
 Command: GEAR:<position>
 Parameters:
   - position: Gear state (0=retracted, 1=extended)
@@ -101,7 +106,8 @@ Example:
 ### 3. System Commands
 
 #### Status Query
-```
+
+```text
 Command: STATUS
 Parameters: None
 
@@ -121,7 +127,8 @@ Example:
 ```
 
 #### Version Information
-```
+
+```text
 Command: VERSION
 Parameters: None
 
@@ -135,11 +142,13 @@ Example:
 ## Error Handling
 
 ### Error Response Format
-```
+
+```text
 ERROR: <error_code> <description>\n
 ```
 
 ### Error Codes
+
 - `INVALID_CMD`: Command not recognized
 - `INVALID_PARAM`: Parameter value out of range
 - `SAFETY_LOCK`: Safety system preventing operation
@@ -147,7 +156,8 @@ ERROR: <error_code> <description>\n
 - `HARDWARE_FAULT`: Hardware malfunction detected
 
 ### Examples
-```
+
+```text
 > M FL:300 FR:100 RL:100 RR:100
 < ERROR: INVALID_PARAM FL speed out of range
 
@@ -161,16 +171,19 @@ ERROR: <error_code> <description>\n
 ## Safety Constraints
 
 ### Command Rate Limiting
+
 - Motor commands: Max 100 Hz
 - Fire commands: Max 10 Hz (100ms cooldown)
 - Status queries: Max 10 Hz
 
 ### Watchdog Behavior
+
 - If no command received for 300ms, all motors stop
 - Watchdog reset causes all systems to safe state
 - Fire sequence automatically aborts on timeout
 
 ### Parameter Validation
+
 - Motor speeds clamped to [-255, +255]
 - Boolean parameters accept only 0 or 1
 - Invalid parameters rejected with error response
@@ -178,17 +191,19 @@ ERROR: <error_code> <description>\n
 ## Communication Timing
 
 ### Timeouts
+
 - Command processing: <10ms typical
 - Response transmission: <5ms
 - Status query response: <20ms
 
 ### Baud Rate
+
 - USB CDC virtual COM port (baud rate setting ignored)
 - Actual throughput: ~1MB/s theoretical, ~100KB/s practical
 
 ## Protocol State Machine
 
-```
+```text
 IDLE ──[valid command]──> PROCESSING ──[response sent]──> IDLE
   │                            │
   └─[invalid command]─────> ERROR ──[error sent]──> IDLE
@@ -197,14 +212,17 @@ IDLE ──[valid command]──> PROCESSING ──[response sent]──> IDLE
 ## Compatibility Notes
 
 ### Legacy STM32 Compatibility
+
 - Command syntax identical to legacy firmware
 - Response formats preserved for existing scripts
 - Pin assignments may differ (transparent to protocol)
 
 ### Future Extensions
+
 - Protocol designed for extension with new commands
 - Versioning support for backward compatibility
 - Reserved command prefixes: `DEBUG`, `DIAG`, `CFG`
 
 ---
-*USB CDC Protocol Contract v1.0*
+
+## USB CDC Protocol Contract v1.0
