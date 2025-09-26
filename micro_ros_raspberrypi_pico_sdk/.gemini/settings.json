@@ -1,0 +1,53 @@
+{
+  "general": {
+    "preferredEditor": "vscode"
+  },
+  "mcpServers": {
+    "desktop-commander": {
+      "command": "node",
+      "args": [
+        "/mnt/c/GIT/DesktopCommanderMCP/dist/index.js"
+      ]
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-brave-search"
+      ],
+      "env": {
+        "BRAVE_API_KEY": "BSACff5RwVt6JUrFYuTkto78WqGV5Es"
+      },
+      "type": "stdio"
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ],
+      "gallery": true
+    },
+    "sequentialthinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking@latest"
+      ],
+      "gallery": true
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {
+        "MEMORY_FILE_PATH": "/mnt/c/GIT/my_steel-robot_ws/src/robot_firmware/example_repo/micro_ros_raspberrypi_pico_sdk/.vscode/memory.json"
+      },
+      "type": "stdio"
+    }
+  }
+}

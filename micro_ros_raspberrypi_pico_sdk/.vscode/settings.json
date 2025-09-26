@@ -1,0 +1,22 @@
+{
+    // Use Ninja as the default generator for Pico projects and prefer CMake Presets
+    // "cmake.generator": "Ninja",
+    // // Don't auto-configure on open so you can select presets explicitly
+    // "cmake.configureOnOpen": false,
+    // // Enable use of CMakePresets.json if available
+    // "cmake.useCMakePresets": "always",
+    // "cmake.defaultConfigurePreset": "pico-ninja-release",
+    // "cmake.buildDirectory": "${workspaceFolder}/build/${presetName}",
+    // "cmake.environment": {
+    //     "PICO_SDK_PATH": "c:\\GIT\\my_steel-robot_ws\\src\\robot_firmware\\~\\pico-sdk",
+    //     "PICO_TOOLCHAIN_PATH": "C:\\Program Files (x86)\\GNU Arm Embedded Toolchain\\10 2021.10"
+    // },
+    // Optional: Recommended extensions for working with Pico/CMake
+    "extensions.recommendations": [
+        "ms-vscode.cmake-tools",
+        "twxs.cmake",
+        "marus25.cortex-debug"
+    ],
+    "C_Cpp.errorSquiggles": "enabled",
+    "files.eol": "\n"
+}
