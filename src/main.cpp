@@ -21,6 +21,42 @@ extern "C" {
 #include "pico/stdio_usb.h"  // Nötig für die manuelle Initialisierung
 }
 
+
+// {
+//   "pico_pinmap": {
+//     "UART0_TX": 0,
+//       "UART0_RX" : 1,
+//       "VL6180X_SDA" : 0,
+//       "VL6180X_SCL" : 0,
+//       "IMU_SPI0_MISO" : 16,
+//       "IMU_SPI0_CS" : 17,
+//       "IMU_SPI0_SCK" : 18,
+//       "IMU_SPI0_MOSI" : 19,
+//       "LED_PIN" : 25,
+//       "M0_IN1" : 2,
+//       "M0_IN2" : 3,
+//       "M0_PWM" : 4,
+//       "M0_ENC_A" : 5,
+//       "M0_ENC_B" : 6,
+//       "M1_IN1" : 7,
+//       "M1_IN2" : 8,
+//       "M1_PWM" : 9,
+//       "M1_ENC_A" : 10,
+//       "M1_ENC_B" : 11,
+//       "M2_IN1" : 12,
+//       "M2_IN2" : 13,
+//       "M2_PWM" : 14,
+//       "M2_ENC_A" : 15,
+//       "M2_ENC_B" : 20,
+//       "M3_IN1" : 21,
+//       "M3_IN2" : 22,
+//       "M3_PWM" : 23,
+//       "M3_ENC_A" : 24,
+//       "M3_ENC_B" : 26
+//   },
+//     "pwm_target_hz": 20000
+// }
+
 #ifndef ENABLE_DEBUG_HEARTBEAT
 #define ENABLE_DEBUG_HEARTBEAT 1
 #endif
@@ -33,55 +69,55 @@ extern "C" {
 #define TASK_PRIORITY (tskIDLE_PRIORITY + 1UL)
 
 // LED PAD to use
-#define BLINK_LED_PAD 26
+#define BLINK_LED_PAD 25
 #define CONN_LED_PAD 26
 
 // TB6612 Motor Driver Pins
 // Note: Pin 0, 1 reserved for UART0
 // Front Left Motor (Motor 0)
-#define FRONT_LEFT_IN1 20        // Direction pin 1
-#define FRONT_LEFT_IN2 21        // Direction pin 2
-#define FRONT_LEFT_PWM 19        // Speed control (PWM)
-#define FRONT_LEFT_ROTENC_A 6
-#define FRONT_LEFT_ROTENV_B 7
+#define FRONT_LEFT_IN1 2        // Direction pin 1
+#define FRONT_LEFT_IN2 3        // Direction pin 2
+#define FRONT_LEFT_PWM 4        // Speed control (PWM)
+#define FRONT_LEFT_ROTENC_A 5
+#define FRONT_LEFT_ROTENV_B 6
 
 // Front Right Motor (Motor 1)
-#define FRONT_RIGHT_IN1 4        // Direction pin 1
-#define FRONT_RIGHT_IN2 5        // Direction pin 2
-#define FRONT_RIGHT_PWM 3        // Speed control (PWM)
-#define FRONT_RIGHT_ROTENC_A 8
-#define FRONT_RIGHT_ROTENV_B 9
+#define FRONT_RIGHT_IN1 7        // Direction pin 1
+#define FRONT_RIGHT_IN2 8        // Direction pin 2
+#define FRONT_RIGHT_PWM 8        // Speed control (PWM)
+#define FRONT_RIGHT_ROTENC_A 10
+#define FRONT_RIGHT_ROTENV_B 11
 
 // Rear Left Motor (Motor 2)
-#define REAR_LEFT_IN1 14         // Direction pin 1
-#define REAR_LEFT_IN2 15         // Direction pin 2
-#define REAR_LEFT_PWM 2          // Speed control (PWM)
-#define REAR_LEFT_ROTENC_A 10
-#define REAR_LEFT_ROTENV_B 11
+#define REAR_LEFT_IN1 12         // Direction pin 1
+#define REAR_LEFT_IN2 13         // Direction pin 2
+#define REAR_LEFT_PWM 14          // Speed control (PWM)
+#define REAR_LEFT_ROTENC_A 15
+#define REAR_LEFT_ROTENV_B 20
 
 // Rear Right Motor (Motor 3)
-#define REAR_RIGHT_IN1 22        // Direction pin 1
-#define REAR_RIGHT_IN2 28        // Direction pin 2
-#define REAR_RIGHT_PWM 27        // Speed control (PWM)
-#define REAR_RIGHT_ROTENC_A 12
-#define REAR_RIGHT_ROTENV_B 13
+#define REAR_RIGHT_IN1 21        // Direction pin 1
+#define REAR_RIGHT_IN2 22        // Direction pin 2
+#define REAR_RIGHT_PWM 23        // Speed control (PWM)
+#define REAR_RIGHT_ROTENC_A 24
+#define REAR_RIGHT_ROTENV_B 26
 
 // PID
-#define KP 2.0  // war 0.55
+#define KP 1.0  // war 0.55
 #define KI 0.1  // war 0.019
 #define KD 0.5  // war 0.24
 
 // IMU (SPI) Pins DONT CHANGE IT
 #define IMU_SPI_PORT spi0
+#define IMU_MISO_PIN 16  // AD0
 #define IMU_CS_PIN 17    // NCS
 #define IMU_SCK_PIN 18   // SCLK
 #define IMU_MOSI_PIN 19  //  SDI
-#define IMU_MISO_PIN 16  // AD0
 
-// VL6180X (I2C) Pins DONT CHANGE IT
-#define VL6180X_I2C_PORT i2c1
-#define VL6180X_SDA_PIN 2
-#define VL6180X_SCL_PIN 3
+// // VL6180X (I2C) Pins DONT CHANGE IT
+// #define VL6180X_I2C_PORT i2c1
+// #define VL6180X_SDA_PIN 2
+// #define VL6180X_SCL_PIN 3
 
 char ROBOT_NAME[] = "robot_xl";
 
@@ -209,7 +245,7 @@ int main(void)
 
   // USB manuell für micro-ROS initialisieren
   stdio_usb_init();  // Macht USB für den Transport verfügbar
-  
+
   // UART0 debugging disabled for performance optimization (uncomment to enable)
   // stdio_uart_init_full(uart0, 115200, 0, 1);  // Leitet printf auf UART um
 
