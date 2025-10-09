@@ -2,7 +2,7 @@
 #include "DDD.h"
 #include "FreeRTOS.h"
 // #include "HCSR04Agent.h"
-#include "TB6612MotorsAgent.h"
+#include "MotorsAgent.h"
 #include "PubEntities.h"
 #include "application/ImuAgent.h"
 // #include "application/vl6180xAgent.hpp"
@@ -36,33 +36,27 @@ extern "C" {
 #define BLINK_LED_PAD 26
 #define CONN_LED_PAD 26
 
-// TB6612 Motor Driver Pins
-// Note: Pin 0, 1 reserved for UART0
 // Front Left Motor (Motor 0)
-#define FRONT_LEFT_IN1 20        // Direction pin 1
-#define FRONT_LEFT_IN2 21        // Direction pin 2
-#define FRONT_LEFT_PWM 19        // Speed control (PWM)
+#define FRONT_LEFT_PWR_CW 20
+#define FRONT_LEFT_PWR_CCW 21
 #define FRONT_LEFT_ROTENC_A 6
 #define FRONT_LEFT_ROTENV_B 7
 
 // Front Right Motor (Motor 1)
-#define FRONT_RIGHT_IN1 4        // Direction pin 1
-#define FRONT_RIGHT_IN2 5        // Direction pin 2
-#define FRONT_RIGHT_PWM 3        // Speed control (PWM)
+#define FRONT_RIGHT_PWR_CW 4
+#define FRONT_RIGHT_PWR_CCW 5
 #define FRONT_RIGHT_ROTENC_A 8
 #define FRONT_RIGHT_ROTENV_B 9
 
 // Rear Left Motor (Motor 2)
-#define REAR_LEFT_IN1 14         // Direction pin 1
-#define REAR_LEFT_IN2 15         // Direction pin 2
-#define REAR_LEFT_PWM 2          // Speed control (PWM)
+#define REAR_LEFT_PWR_CW 14
+#define REAR_LEFT_PWR_CCW 15
 #define REAR_LEFT_ROTENC_A 10
 #define REAR_LEFT_ROTENV_B 11
 
 // Rear Right Motor (Motor 3)
-#define REAR_RIGHT_IN1 22        // Direction pin 1
-#define REAR_RIGHT_IN2 28        // Direction pin 2
-#define REAR_RIGHT_PWM 27        // Speed control (PWM)
+#define REAR_RIGHT_PWR_CW 22
+#define REAR_RIGHT_PWR_CCW 28
 #define REAR_RIGHT_ROTENC_A 12
 #define REAR_RIGHT_ROTENV_B 13
 
@@ -109,11 +103,11 @@ void mainTask(void* params)
 
   static BlinkAgent blink(BLINK_LED_PAD);
 
-  static TB6612MotorsAgent motors;
-  motors.addMotor(0, FRONT_LEFT_IN1, FRONT_LEFT_IN2, FRONT_LEFT_PWM, FRONT_LEFT_ROTENC_A, FRONT_LEFT_ROTENV_B);
-  motors.addMotor(1, FRONT_RIGHT_IN1, FRONT_RIGHT_IN2, FRONT_RIGHT_PWM, FRONT_RIGHT_ROTENC_A, FRONT_RIGHT_ROTENV_B);
-  motors.addMotor(2, REAR_LEFT_IN1, REAR_LEFT_IN2, REAR_LEFT_PWM, REAR_LEFT_ROTENC_A, REAR_LEFT_ROTENV_B);
-  motors.addMotor(3, REAR_RIGHT_IN1, REAR_RIGHT_IN2, REAR_RIGHT_PWM, REAR_RIGHT_ROTENC_A, REAR_RIGHT_ROTENV_B);
+  static MotorsAgent motors;
+  motors.addMotor(0, FRONT_LEFT_PWR_CW, FRONT_LEFT_PWR_CCW, FRONT_LEFT_ROTENC_A, FRONT_LEFT_ROTENV_B);
+  motors.addMotor(1, FRONT_RIGHT_PWR_CW, FRONT_RIGHT_PWR_CCW, FRONT_RIGHT_ROTENC_A, FRONT_RIGHT_ROTENV_B);
+  motors.addMotor(2, REAR_LEFT_PWR_CW, REAR_LEFT_PWR_CCW, REAR_LEFT_ROTENC_A, REAR_LEFT_ROTENV_B);
+  motors.addMotor(3, REAR_RIGHT_PWR_CW, REAR_RIGHT_PWR_CCW, REAR_RIGHT_ROTENC_A, REAR_RIGHT_ROTENV_B);
   motors.configAllPID(KP, KI, KD);
 
   // static HCSR04Agent range;

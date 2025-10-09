@@ -42,12 +42,14 @@ MotorsAgent::~MotorsAgent() {
  * @param gpB - RotEnc input B
  */
 void MotorsAgent::addMotor(uint index,
-                uint8_t gpCW, uint8_t gpCCW,
-                uint8_t gpA, uint8_t gpB){
-        if (index < NUM_MOTORS){
-                pMotors[index] = new MotorPID(gpCW, gpCCW, gpA, gpB);
-        }
-}/***
+		uint8_t gpCW, uint8_t gpCCW,
+		uint8_t gpA, uint8_t gpB){
+	if (index < NUM_MOTORS){
+		pMotors[index] = new MotorPID(gpCW, gpCCW, gpA, gpB);
+	}
+}
+
+/***
  * Configure PID for motor
  * @param index - of the motor
  * @param kP
@@ -280,8 +282,8 @@ void MotorsAgent::pubJointState(){
  * @return
  */
 MotorPID * MotorsAgent::getMotor(uint index){
-        if (index >= NUM_MOTORS){
-                return NULL;
-        }
-        return pMotors[index];
+	if (index >= NUM_MOTORS){
+		return NULL;
+	}
+	return pMotors[index];
 }

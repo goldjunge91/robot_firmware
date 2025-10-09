@@ -30,7 +30,7 @@ DDD::~DDD() {
     // TODO Auto-generated destructor stub
 }
 
-void DDD::setMotorsAgent(BaseMotorsAgent *p) {
+void DDD::setMotorsAgent(MotorsAgent *p) {
     pMotorsAgent = p;
 }
 

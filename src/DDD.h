@@ -10,7 +10,7 @@
 
 #include "Agent.h"
 #include "HCSR04Agent.h"
-#include "BaseMotorsAgent.h"
+#include "MotorsAgent.h"
 #include "uRosEntities.h"
 
 extern "C" {
@@ -55,7 +55,7 @@ public:
     DDD();
     virtual ~DDD();
 
-    void setMotorsAgent(BaseMotorsAgent *p);
+    void setMotorsAgent(MotorsAgent *p);
 
     void setHCSR04Agent(HCSR04Agent *p);
 
@@ -124,7 +124,7 @@ private:
 
     void robotStop();
 
-    BaseMotorsAgent *pMotorsAgent = NULL;
+    MotorsAgent *pMotorsAgent = NULL;
     HCSR04Agent *pHCSR04Agent = NULL;
     application::ImuAgent *pImuAgent = NULL;
     application::Vl6180xAgent *pVl6180xAgent = NULL;

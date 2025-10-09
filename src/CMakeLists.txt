@@ -6,12 +6,9 @@ add_executable(${NAME}
         
         MotorMgr.cpp
         MotorPID.cpp
-        TB6612MotorMgr.cpp
-        TB6612MotorPID.cpp
         
         PubEntities.cpp
         MotorsAgent.cpp
-        TB6612MotorsAgent.cpp
         DDD.cpp
         HCSR04Agent.cpp
         

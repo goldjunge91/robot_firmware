@@ -11,7 +11,6 @@
 #include "pico/stdlib.h"
 #include "Agent.h"
 #include "MotorPID.h"
-#include "BaseMotorsAgent.h"
 #include "uRosEntities.h"
 
 extern"C"{
@@ -28,7 +27,7 @@ extern"C"{
 #define NUM_MOTORS 4
 #endif
 
-class MotorsAgent : public BaseMotorsAgent {
+class MotorsAgent : public Agent, public uRosEntities {
 public:
 	MotorsAgent();
 	virtual ~MotorsAgent();
@@ -50,7 +49,7 @@ public:
 	 * @param index
 	 * @return
 	 */
-	virtual MotorPID * getMotor(uint index) override;
+	MotorPID * getMotor(uint index);
 
 	/***
 	 * Configure PID for motor
@@ -59,8 +58,8 @@ public:
 	 * @param kI
 	 * @param kD
 	 */
-	virtual void configPID(uint index,
-			float kP, float kI, float kD) override;
+	void configPID(uint index,
+			float kP, float kI, float kD);
 
 	/***
 	 * Configure PID for all the motors
@@ -68,7 +67,7 @@ public:
 	 * @param kI
 	 * @param kD
 	 */
-	virtual void configAllPID(float kP, float kI, float kD) override;
+	void configAllPID(float kP, float kI, float kD);
 
 	/***
 	 * Set the speed of the motor to be controlled
@@ -85,7 +84,7 @@ public:
 	 * @param rps radians per second
 	 * @param cw direction - true if clockwise
 	 */
-	virtual void setSpeedRadPS(uint index, float rps, bool cw) override;
+	void setSpeedRadPS(uint index, float rps, bool cw);
 
 	/***
 	 * Create the publishing entities
