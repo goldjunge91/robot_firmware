@@ -23,7 +23,7 @@
   - Comment out HCSR04Agent start() call
   - Add consistent TODO comment: "TODO: delete after successful micro-ROS-Agent connection-Test"
   - Verify firmware builds successfully
-  - _Requirements: 2.1, 2.3, 8.2_
+  - _Requirements: 2.1, 2.3, 8.2  _
 
 - [ ] 4. Comment out VL6180X sensor code with TODO markers
   - Comment out `#include "application/vl6180xAgent.hpp"` in main.cpp with TODO marker
