@@ -1,0 +1,133 @@
+name: Firmware Release
+
+# Trigger:
+# 1. workflow_dispatch: Manueller Start mit Angabe der Versionserhöhung (patch, minor, major).
+# 2. push: Wird ausgeführt, wenn ein Commit auf den 'main'-Branch gepusht wird.
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump level (major, minor, or patch)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+  push:
+    branches: [ "main" ]
+
+env:
+  PICO_SDK_PATH: ~/pico/pico-sdk
+  SDK_VERSION: 1.5.1 # Dieselbe SDK-Version wie im CI-Workflow
+
+jobs:
+  # Job 1: Ermittelt, ob und wie die Version erhöht werden soll
+  determine-version:
+    name: Determine Version Bump
+    runs-on: ubuntu-latest
+    outputs:
+      bump: ${{ steps.get-bump.outputs.bump }}
+      commit_sha: ${{ steps.get-commit-sha.outputs.sha }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Notwendig für die Analyse der Commit-Historie
+
+      - name: Get commit SHA
+        id: get-commit-sha
+        run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Get version bump from commit message (for pushes to main)
+        id: get-bump-commit
+        if: github.event_name == 'push'
+        uses: husarion-ci/action-get-version-bump@v0.3.0
+        with:
+          commit_message: ${{ github.event.head_commit.message }}
+
+      - name: Set version bump output
+        id: get-bump
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "bump=${{ github.event.inputs.bump }}" >> $GITHUB_OUTPUT
+          else
+            echo "bump=${{ steps.get-bump-commit.outputs.bump }}" >> $GITHUB_OUTPUT
+          fi
+
+  # Job 2: Erstellt das Release, aber nur wenn eine Versionserhöhung nötig ist
+  build-and-release:
+    name: Build and Create Release
+    runs-on: ubuntu-latest
+    needs: determine-version
+    # Wichtige Bedingung: Läuft nur, wenn 'determine-version' einen Bump ('patch', 'minor', 'major') ermittelt hat
+    if: needs.determine-version.outputs.bump != 'none' && needs.determine-version.outputs.bump != ''
+    permissions:
+      contents: write # Notwendig, um Tags zu pushen und ein Release zu erstellen
+    steps:
+      - name: 1. Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Notwendig für das Tagging
+
+      # Schritte zum Erstellen des neuen Versions-Tags
+      - name: 2. Get latest SemVer tag
+        id: get-latest-tag
+        uses: actions-ecosystem/action-get-latest-tag@v1
+        with:
+          semver_only: true
+          initial_version: v0.0.0
+
+      - name: 3. Bump version
+        id: bump-semver
+        uses: actions-ecosystem/action-bump-semver@v1
+        with:
+          current_version: ${{ steps.get-latest-tag.outputs.tag }}
+          level: ${{ needs.determine-version.outputs.bump }}
+
+      - name: 4. Create and push new tag
+        run: |
+          git tag ${{ steps.bump-semver.outputs.new_version }}
+          git push origin ${{ steps.bump-semver.outputs.new_version }}
+
+      # Build-Schritte (identisch zum CI-Workflow, hier wiederverwendet)
+      - name: 5. Cache Pico SDK
+        id: cache-pico-sdk
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.PICO_SDK_PATH }}
+          key: ${{ runner.os }}-pico-sdk-${{ env.SDK_VERSION }}
+
+      - name: 6. Setup toolchain
+        run: |
+          sudo apt update
+          sudo apt install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
+
+      - name: 7. Setup Pico SDK
+        if: steps.cache-pico-sdk.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p $(dirname ${{ env.PICO_SDK_PATH }})
+          git clone https://github.com/raspberrypi/pico-sdk.git --depth 1 --branch ${{ env.SDK_VERSION }} ${{ env.PICO_SDK_PATH }}
+          cd ${{ env.PICO_SDK_PATH }}
+          git submodule update --init
+
+      - name: 8. Compile firmware
+        run: |
+          cd ${{ github.workspace }}
+          mkdir build
+          cd build
+          cmake ..
+          make
+
+      # Schritt zum Veröffentlichen des GitHub-Releases
+      - name: 9. Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.bump-semver.outputs.new_version }}
+          name: "Release ${{ steps.bump-semver.outputs.new_version }}"
+          body: "Firmware release based on commit ${{ needs.determine-version.outputs.commit_sha }}."
+          files: |
+            build/*.uf2
+            build/*.bin
+            build/*.hex
