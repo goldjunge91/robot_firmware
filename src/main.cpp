@@ -6,6 +6,7 @@
 #include "PubEntities.h"
 #include "application/ImuAgent.h"
 // #include "application/vl6180xAgent.hpp"
+#include "config/FirmwareConfig.h"
 #include "hardware/i2c.h"
 #include "hardware/uart.h"
 #include "pico/stdlib.h"
@@ -21,111 +22,13 @@ extern "C" {
 #include "pico/stdio_usb.h"  // Nötig für die manuelle Initialisierung
 }
 
+// Note: All configuration constants have been moved to config/FirmwareConfig.h
+// This includes pin assignments, PID parameters, task priorities, and debug settings.
 
-// {
-//   "pico_pinmap": {
-//     "UART0_TX": 0,
-//       "UART0_RX" : 1,
-//       "VL6180X_SDA" : 0,
-//       "VL6180X_SCL" : 0,
-//       "IMU_SPI0_MISO" : 16,
-//       "IMU_SPI0_CS" : 17,
-//       "IMU_SPI0_SCK" : 18,
-//       "IMU_SPI0_MOSI" : 19,
-//       "LED_PIN" : 25,
-//       "M0_IN1" : 2,
-//       "M0_IN2" : 3,
-//       "M0_PWM" : 4,
-//       "M0_ENC_A" : 5,
-//       "M0_ENC_B" : 6,
-//       "M1_IN1" : 7,
-//       "M1_IN2" : 8,
-//       "M1_PWM" : 9,
-//       "M1_ENC_A" : 10,
-//       "M1_ENC_B" : 11,
-//       "M2_IN1" : 12,
-//       "M2_IN2" : 13,
-//       "M2_PWM" : 14,
-//       "M2_ENC_A" : 15,
-//       "M2_ENC_B" : 20,
-//       "M3_IN1" : 21,
-//       "M3_IN2" : 22,
-//       "M3_PWM" : 23,
-//       "M3_ENC_A" : 24,
-//       "M3_ENC_B" : 26
-//   },
-//     "pwm_target_hz": 20000
-// }
-
-#ifndef ENABLE_DEBUG_HEARTBEAT
-#define ENABLE_DEBUG_HEARTBEAT 1
-#endif
-
-#ifndef DEBUG_HEARTBEAT_INTERVAL_MS
-#define DEBUG_HEARTBEAT_INTERVAL_MS 5000
-#endif
-
-// Standard Task priority
-#define TASK_PRIORITY (tskIDLE_PRIORITY + 1UL)
-
-// LED PAD to use
-#define BLINK_LED_PAD 25
-#define CONN_LED_PAD 26
-
-// TB6612 Motor Driver Pins
-// Note: Pin 0, 1 reserved for UART0
-// Front Left Motor (Motor 0)
-#define FRONT_LEFT_IN1 2        // Direction pin 1
-#define FRONT_LEFT_IN2 3        // Direction pin 2
-#define FRONT_LEFT_PWM 4        // Speed control (PWM)
-#define FRONT_LEFT_ROTENC_A 5
-#define FRONT_LEFT_ROTENV_B 6
-
-// Front Right Motor (Motor 1)
-#define FRONT_RIGHT_IN1 7        // Direction pin 1
-#define FRONT_RIGHT_IN2 8        // Direction pin 2
-#define FRONT_RIGHT_PWM 8        // Speed control (PWM)
-#define FRONT_RIGHT_ROTENC_A 10
-#define FRONT_RIGHT_ROTENV_B 11
-
-// Rear Left Motor (Motor 2)
-#define REAR_LEFT_IN1 12         // Direction pin 1
-#define REAR_LEFT_IN2 13         // Direction pin 2
-#define REAR_LEFT_PWM 14          // Speed control (PWM)
-#define REAR_LEFT_ROTENC_A 15
-#define REAR_LEFT_ROTENV_B 20
-
-// Rear Right Motor (Motor 3)
-#define REAR_RIGHT_IN1 21        // Direction pin 1
-#define REAR_RIGHT_IN2 22        // Direction pin 2
-#define REAR_RIGHT_PWM 23        // Speed control (PWM)
-#define REAR_RIGHT_ROTENC_A 24
-#define REAR_RIGHT_ROTENV_B 26
-
-// PID
-#define KP 1.0  // war 0.55
-#define KI 0.1  // war 0.019
-#define KD 0.5  // war 0.24
-
-// IMU (SPI) Pins DONT CHANGE IT
-#define IMU_SPI_PORT spi0
-#define IMU_MISO_PIN 16  // AD0
-#define IMU_CS_PIN 17    // NCS
-#define IMU_SCK_PIN 18   // SCLK
-#define IMU_MOSI_PIN 19  //  SDI
-
-// // VL6180X (I2C) Pins DONT CHANGE IT
-// #define VL6180X_I2C_PORT i2c1
-// #define VL6180X_SDA_PIN 2
-// #define VL6180X_SCL_PIN 3
-
-char ROBOT_NAME[] = "robot_xl";
-
-#if ENABLE_DEBUG_HEARTBEAT
 static void debugHeartbeatTask(void* params)
 {
   (void)params;
-  const TickType_t delay_ticks = pdMS_TO_TICKS(DEBUG_HEARTBEAT_INTERVAL_MS);
+  const TickType_t delay_ticks = pdMS_TO_TICKS(config::debug::kHeartbeatIntervalMs);
   for (;;)
   {
     uint32_t uptime_ms = to_ms_since_boot(get_absolute_time());
@@ -133,7 +36,6 @@ static void debugHeartbeatTask(void* params)
     vTaskDelay(delay_ticks);
   }
 }
-#endif
 
 /***
  * Main task to boot the other Agents
@@ -143,14 +45,18 @@ void mainTask(void* params)
 {
   printf("mainTask started. Initializing agents...\n");
 
-  static BlinkAgent blink(BLINK_LED_PAD);
+  static BlinkAgent blink(config::pins::kBlinkLed);
 
   static TB6612MotorsAgent motors;
-  motors.addMotor(0, FRONT_LEFT_IN1, FRONT_LEFT_IN2, FRONT_LEFT_PWM, FRONT_LEFT_ROTENC_A, FRONT_LEFT_ROTENV_B);
-  motors.addMotor(1, FRONT_RIGHT_IN1, FRONT_RIGHT_IN2, FRONT_RIGHT_PWM, FRONT_RIGHT_ROTENC_A, FRONT_RIGHT_ROTENV_B);
-  motors.addMotor(2, REAR_LEFT_IN1, REAR_LEFT_IN2, REAR_LEFT_PWM, REAR_LEFT_ROTENC_A, REAR_LEFT_ROTENV_B);
-  motors.addMotor(3, REAR_RIGHT_IN1, REAR_RIGHT_IN2, REAR_RIGHT_PWM, REAR_RIGHT_ROTENC_A, REAR_RIGHT_ROTENV_B);
-  motors.configAllPID(KP, KI, KD);
+  motors.addMotor(0, config::pins::kMotor0In1, config::pins::kMotor0In2, config::pins::kMotor0Pwm, 
+                  config::pins::kMotor0EncA, config::pins::kMotor0EncB);
+  motors.addMotor(1, config::pins::kMotor1In1, config::pins::kMotor1In2, config::pins::kMotor1Pwm, 
+                  config::pins::kMotor1EncA, config::pins::kMotor1EncB);
+  motors.addMotor(2, config::pins::kMotor2In1, config::pins::kMotor2In2, config::pins::kMotor2Pwm, 
+                  config::pins::kMotor2EncA, config::pins::kMotor2EncB);
+  motors.addMotor(3, config::pins::kMotor3In1, config::pins::kMotor3In2, config::pins::kMotor3Pwm, 
+                  config::pins::kMotor3EncA, config::pins::kMotor3EncB);
+  motors.configAllPID(config::pid::kProportional, config::pid::kIntegral, config::pid::kDerivative);
 
   // static HCSR04Agent range;
   // range.addSensor(0, "range_front");
@@ -165,14 +71,14 @@ void mainTask(void* params)
 
   // Konfiguration für die IMU (SPI)
   hal::hardware::Icm20948Simple::Config imu_cfg{};
-  imu_cfg.bus = IMU_SPI_PORT;
-  imu_cfg.baudrate_hz = 1000 * 1000;  // 1MHz
-  imu_cfg.cs_pin = IMU_CS_PIN;
-  imu_cfg.sck_pin = IMU_SCK_PIN;
-  imu_cfg.mosi_pin = IMU_MOSI_PIN;
-  imu_cfg.miso_pin = IMU_MISO_PIN;
+  imu_cfg.bus = config::imu::kSpiBus;
+  imu_cfg.baudrate_hz = config::imu::kSpiBaudrate;
+  imu_cfg.cs_pin = config::pins::kImuCs;
+  imu_cfg.sck_pin = config::pins::kImuSck;
+  imu_cfg.mosi_pin = config::pins::kImuMosi;
+  imu_cfg.miso_pin = config::pins::kImuMiso;
   static application::ImuAgent imu(imu_cfg);
-  imu.setFrameId("imu_link");
+  imu.setFrameId(config::imu::kFrameId);
 
   static DDD ddd;
   ddd.setMotorsAgent(&motors);
@@ -182,30 +88,30 @@ void mainTask(void* params)
 
   // Starten der Agenten-Tasks
   printf("Starting BlinkAgent...\n");
-  blink.start("Blink", TASK_PRIORITY);
+  blink.start("Blink", config::robot::kTaskPriority);
 
   printf("Starting MotorsAgent...\n");
-  motors.start("Motors", TASK_PRIORITY);
+  motors.start("Motors", config::robot::kTaskPriority);
 
   // HCSR04Agent and VL6180X disabled for now
   // printf("Starting HCSR04Agent...\n");
-  // range.start("Range", TASK_PRIORITY);
+  // range.start("Range", config::robot::kTaskPriority);
 
   // printf("Starting Vl6180xAgent...\n");
-  // tof.start("VL6180X", TASK_PRIORITY);
+  // tof.start("VL6180X", config::robot::kTaskPriority);
 
   printf("Starting ImuAgent...\n");
-  imu.start("IMU", TASK_PRIORITY);
+  imu.start("IMU", config::robot::kTaskPriority);
 
   printf("Starting DDD Agent...\n");
-  ddd.start("DDD", TASK_PRIORITY);
+  ddd.start("DDD", config::robot::kTaskPriority);
 
   // Starten der uROS Bridge
   printf("Starting uRosBridge...\n");
   static uRosBridge* bridge = uRosBridge::getInstance();
   bridge->setuRosEntities(&ddd);
-  bridge->setLed(CONN_LED_PAD);
-  bridge->start("Bridge", TASK_PRIORITY + 2);
+  bridge->setLed(config::pins::kConnectionLed);
+  bridge->start("Bridge", config::robot::kTaskPriority + 2u);
   printf("micro-ROS bridge task started.\n");
 
   printf("All agents started. MainTask will now suspend.\n");
@@ -224,11 +130,13 @@ void vLaunch(void)
 {
   // Erhöhe den Stack für den mainTask, um die Erstellung aller Objekte sicherzustellen
   TaskHandle_t task;
-  xTaskCreate(mainTask, "MainThread", 2048, NULL, TASK_PRIORITY, &task);
+  xTaskCreate(mainTask, "MainThread", config::robot::kMainTaskStackSize, NULL, 
+              config::robot::kTaskPriority, &task);
 
-#if ENABLE_DEBUG_HEARTBEAT
-  xTaskCreate(debugHeartbeatTask, "DbgBeat", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
-#endif
+  if (config::debug::kEnableHeartbeat)
+  {
+    xTaskCreate(debugHeartbeatTask, "DbgBeat", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL);
+  }
 
   /* Start the tasks and timer running. */
   vTaskStartScheduler();
@@ -250,7 +158,7 @@ int main(void)
   // stdio_uart_init_full(uart0, 115200, 0, 1);  // Leitet printf auf UART um
 
   sleep_ms(2000);
-  printf("\n\n-- Booting %s firmware (UART0 debug disabled for performance) --\n", ROBOT_NAME);
+  printf("\n\n-- Booting %s firmware (UART0 debug disabled for performance) --\n", config::robot::kName);
 
   // Start tasks and scheduler
   const char* rtos_name = "FreeRTOS";

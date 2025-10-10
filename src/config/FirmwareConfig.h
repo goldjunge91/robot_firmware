@@ -189,8 +189,9 @@ namespace imu {
      * The ICM-20948 IMU is connected via SPI0.
      * 
      * @warning Do not change this value unless hardware is modified.
+     * @note Cannot be constexpr because spi0 is a pointer defined at runtime
      */
-    inline constexpr spi_inst_t* kSpiBus = spi0;
+    inline spi_inst_t* const kSpiBus = spi0;
 
     /**
      * @brief SPI baudrate for IMU communication in Hz

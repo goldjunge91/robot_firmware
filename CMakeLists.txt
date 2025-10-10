@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.13)
 
 set(NAME my_firmware) # <-- Name your project/executable here!
-set(PICO_SDK_PATH "/home/$ENV{USER}/pico-sdk" CACHE PATH "Path to the PICO SDK" FORCE)
+
+# Auto-fetch Pico SDK if not found
+set(PICO_SDK_FETCH_FROM_GIT ON)
 include(pico_sdk_import.cmake)
 
 # Gooey boilerplate
@@ -12,7 +14,7 @@ set(CMAKE_CXX_STANDARD 17)
 # Initialize the SDK
 pico_sdk_init()
 
-set (FREERTOS_KERNEL_PATH "${CMAKE_CURRENT_LIST_DIR}/../lib/FreeRTOS-Kernel" CACHE STRING "Common Lib" FORCE)
+set (FREERTOS_KERNEL_PATH "${CMAKE_CURRENT_LIST_DIR}/lib/FreeRTOS-Kernel" CACHE STRING "Common Lib" FORCE)
 
 # Erstelle "INTERFACE"-Target nur für die Konfiguration.
 add_library(freertos_config INTERFACE)
@@ -22,10 +24,6 @@ target_include_directories(freertos_config SYSTEM INTERFACE
     "${CMAKE_CURRENT_LIST_DIR}/port/FreeRTOS-Kernel"
 )
 
-# 3. Füge die notwendigen Compiler-Definitionen für das Target hinzu.
-# target_compile_definitions(freertos_config PUBLIC
-#     projCOVERAGE_TEST=0
-# )
 target_compile_definitions(freertos_config INTERFACE
     projCOVERAGE_TEST=0
     configNUMBER_OF_CORES=2
@@ -36,16 +34,15 @@ target_compile_definitions(freertos_config INTERFACE
     # FREE_RTOS_KERNEL_SMP=0
 )
 
-# === ENDE DER FREERTOS-KORREKTUR ===
 include(FreeRTOS_Kernel_import.cmake)
 
-set(MICRO_ROS_PATH "${CMAKE_CURRENT_LIST_DIR}/../lib/micro_ros_raspberrypi_pico_sdk/" CACHE STRING "Common Lib")
+set(MICRO_ROS_PATH "${CMAKE_CURRENT_LIST_DIR}/lib/micro_ros_raspberrypi_pico_sdk/" CACHE STRING "Common Lib")
 include(micro_ros.cmake)
 
-set(EIGEN_PATH "${CMAKE_CURRENT_LIST_DIR}/../lib/eigen/" CACHE STRING "Common Lib")
+set(EIGEN_PATH "${CMAKE_CURRENT_LIST_DIR}/lib/eigen/" CACHE STRING "Common Lib")
 include(eigen_import.cmake)
 
-set(DISTANCE_SENSOR_PATH "${CMAKE_CURRENT_LIST_DIR}/../lib/pico-distance-sensor/" CACHE STRING "Common Lib")
+set(DISTANCE_SENSOR_PATH "${CMAKE_CURRENT_LIST_DIR}/lib/pico-distance-sensor/" CACHE STRING "Common Lib")
 include(distance_sensor.cmake)
 
 add_subdirectory(src)

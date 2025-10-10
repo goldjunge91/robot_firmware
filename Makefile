@@ -17,7 +17,9 @@ clean-all: clean clean-tests
 # Build: CMake konfigurieren und kompilieren
 build:
 	mkdir -p build
-	cd build && cmake ..
+	cd build && PICO_SDK_PATH=$$HOME/pico-sdk \
+		LDFLAGS="" CFLAGS="" CXXFLAGS="" \
+		cmake ..
 	make -C build
 	@echo "Copying .uf2 file to releases/"
 	@mkdir -p releases
@@ -27,7 +29,9 @@ build:
 
 build_release: clean
 	mkdir -p build_release
-	cd build_release && cmake .. -DCMAKE_BUILD_TYPE=Release
+	cd build_release && PICO_SDK_PATH=$$HOME/pico-sdk \
+		LDFLAGS="" CFLAGS="" CXXFLAGS="" \
+		cmake -DCMAKE_BUILD_TYPE=Release ..
 	make -C build_release -j $(nproc)
 	@echo "Copying release .uf2 file to releases/"
 	@mkdir -p releases

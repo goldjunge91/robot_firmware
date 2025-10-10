@@ -70,10 +70,10 @@ target_link_libraries(${NAME} PRIVATE
         else()
             message(WARNING "Eigen3 not found by CMake find_package; creating imported target Eigen3::Eigen using workspace lib/eigen or /usr/include/eigen3 fallback")
             # Prefer workspace lib/eigen if present
-            if(EXISTS "${CMAKE_SOURCE_DIR}/../lib/eigen/Eigen/src/Core/util/Macros.h")
+            if(EXISTS "${CMAKE_SOURCE_DIR}/lib/eigen/Eigen/src/Core/util/Macros.h")
                 # Create an IMPORTED INTERFACE target to satisfy consumers linking to Eigen3::Eigen
                 add_library(Eigen3::Eigen INTERFACE IMPORTED)
-                target_include_directories(Eigen3::Eigen INTERFACE ${CMAKE_SOURCE_DIR}/../lib/eigen)
+                target_include_directories(Eigen3::Eigen INTERFACE ${CMAKE_SOURCE_DIR}/lib/eigen)
                 target_link_libraries(${NAME} PRIVATE Eigen3::Eigen)
             else()
                 message(WARNING "Workspace lib/eigen not found; falling back to /usr/include/eigen3")

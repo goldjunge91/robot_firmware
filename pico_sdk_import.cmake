@@ -1,27 +1,4 @@
-# Minimal helper: uses env or existing PICO_SDK_PATH
-if (DEFINED ENV{PICO_SDK_PATH} AND (NOT PICO_SDK_PATH))
-    set(PICO_SDK_PATH $ENV{PICO_SDK_PATH})
-endif()
-
-if (NOT PICO_SDK_PATH)
-    message(FATAL_ERROR "PICO_SDK_PATH is not set. Export it before running cmake or source your env helper.")
-endif()
-
-# Prefer include from tools/, but accept other common layouts (external/ or top-level file)
-set(_pico_tools_file "${PICO_SDK_PATH}/tools/pico_sdk_import.cmake")
-set(_pico_external_file "${PICO_SDK_PATH}/external/pico_sdk_import.cmake")
-set(_pico_init_file "${PICO_SDK_PATH}/pico_sdk_init.cmake")
-
-if (EXISTS ${_pico_tools_file})
-    include(${_pico_tools_file})
-elseif (EXISTS ${_pico_external_file})
-    include(${_pico_external_file})
-elseif (EXISTS ${_pico_init_file})
-    # Some SDK layouts expose the init file directly; include it after setting path below
-    # We'll include it later in the script (keeping behavior compatible with original)
-else()
-    message(FATAL_ERROR "Could not find pico_sdk import helper under '${PICO_SDK_PATH}'. Searched:\n  ${_pico_tools_file}\n  ${_pico_external_file}\n  ${_pico_init_file}\nPlease ensure PICO_SDK_PATH points at a valid pico-sdk clone (e.g. ~/pico-sdk) or run setup_pico_sdk.sh to fetch it.")
-endif()
+# Use the standard pico_sdk_import.cmake from the SDK
 # This is a copy of <PICO_SDK_PATH>/external/pico_sdk_import.cmake
 
 # This can be dropped into an external project to help locate this SDK
