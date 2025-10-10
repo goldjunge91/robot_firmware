@@ -7,6 +7,7 @@
 #include "TB6612MotorsAgent.h"
 
 #include "uRosBridge.h"
+#include "config/FirmwareConfig.h"
 
 #include <inttypes.h>
 #include <cmath>
@@ -58,6 +59,11 @@ void TB6612MotorsAgent::addMotor(uint index,
  */
 void TB6612MotorsAgent::configPID(uint index,
 		float kP, float kI, float kD){
+	if (index >= config::robot::kNumMotors) {
+		printf("[TB6612MotorsAgent] ERROR: Motor index %u out of bounds (max: %u)\n",
+		       index, config::robot::kNumMotors - 1);
+		return;
+	}
 	if (pMotors[index] != NULL){
 		pMotors[index]->configPID(kP, kI, kD);
 	}
@@ -86,6 +92,11 @@ void TB6612MotorsAgent::configAllPID(float kP, float kI, float kD){
  */
 void TB6612MotorsAgent::setSpeedRPM(uint index,
 		float rpm, bool cw){
+	if (index >= config::robot::kNumMotors) {
+		printf("[TB6612MotorsAgent] ERROR: Motor index %u out of bounds (max: %u)\n",
+		       index, config::robot::kNumMotors - 1);
+		return;
+	}
 	if (pMotors[index] != NULL){
 		pMotors[index]->setSpeedRPM(rpm, cw);
 	}
@@ -99,6 +110,11 @@ void TB6612MotorsAgent::setSpeedRPM(uint index,
  */
 void TB6612MotorsAgent::setSpeedRadPS(uint index,
 		float rps, bool cw){
+	if (index >= config::robot::kNumMotors) {
+		printf("[TB6612MotorsAgent] ERROR: Motor index %u out of bounds (max: %u)\n",
+		       index, config::robot::kNumMotors - 1);
+		return;
+	}
 	if (pMotors[index] != NULL){
 		if (rps >= 0.0){
 			pMotors[index]->setSpeedRadPS(rps, cw);
@@ -268,7 +284,9 @@ void TB6612MotorsAgent::pubJointState(){
  * @return
  */
 TB6612MotorPID * TB6612MotorsAgent::getMotor(uint index){
-        if (index >= NUM_MOTORS){
+        if (index >= config::robot::kNumMotors){
+                printf("[TB6612MotorsAgent] ERROR: Motor index %u out of bounds (max: %u)\n",
+                       index, config::robot::kNumMotors - 1);
                 return NULL;
         }
         return pMotors[index];

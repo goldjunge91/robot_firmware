@@ -17,7 +17,7 @@
   - Verify build succeeds without warnings
   - _Requirements: 1.1, 1.5, 5.2, 5.3, 10.1_
 
-- [ ] 3. Comment out HCSR04 sensor code with TODO markers
+- [x] 3. Comment out HCSR04 sensor code with TODO markers
   - Comment out `#include "HCSR04Agent.h"` in main.cpp with TODO marker
   - Comment out HCSR04Agent instantiation and initialization in mainTask()
   - Comment out HCSR04Agent start() call
@@ -25,7 +25,7 @@
   - Verify firmware builds successfully
   - _Requirements: 2.1, 2.3, 8.2  _
 
-- [ ] 4. Comment out VL6180X sensor code with TODO markers
+- [x] 4. Comment out VL6180X sensor code with TODO markers
   - Comment out `#include "application/vl6180xAgent.hpp"` in main.cpp with TODO marker
   - Comment out VL6180X configuration and instantiation in mainTask()
   - Comment out VL6180X start() call
@@ -33,7 +33,7 @@
   - Verify firmware builds successfully
   - _Requirements: 2.2, 2.3, 8.2_
 
-- [ ] 5. Update DDD agent to handle missing sensor references
+- [x] 5. Update DDD agent to handle missing sensor references
   - Comment out `setHCSR04Agent()` method declaration in DDD.h
   - Comment out `setVl6180xAgent()` method declaration in DDD.h
   - Comment out sensor pointer members in DDD.h
@@ -42,14 +42,14 @@
   - Verify firmware builds successfully
   - _Requirements: 2.4, 8.2_
 
-- [ ] 6. Add type safety improvements to numeric constants
+- [x] 6. Add type safety improvements to numeric constants
   - Update DDD.h constants (WHEEL_RADIUS, WHEELS_SEP, etc.) with explicit float/double types
   - Add suffix notation (f for float, u for unsigned) to all numeric literals
   - Replace magic numbers with named constants
   - Document units in comments (meters, radians, etc.)
   - _Requirements: 6.1, 6.5, 10.1_
 
-- [ ] 7. Add bounds checking to motor array access
+- [x] 7. Add bounds checking to motor array access
   - Add bounds check in TB6612MotorsAgent::setSpeedRadPS()
   - Add bounds check in TB6612MotorsAgent::getMotor()
   - Add bounds check in TB6612MotorsAgent::configPID()
@@ -57,14 +57,14 @@
   - Use `config::kNumMotors` constant for bounds checking
   - _Requirements: 6.4, 7.4_
 
-- [ ] 8. Add null pointer validation to agent setters
+- [x] 8. Add null pointer validation to agent setters
   - Add null check in DDD::setMotorsAgent()
   - Add null check in DDD::setImuAgent()
   - Add error logging for null pointer attempts
   - Document preconditions in method comments
   - _Requirements: 6.3, 7.3_
 
-- [ ] 9. Improve documentation for public APIs
+- [x] 9. Improve documentation for public APIs
   - Add Doxygen comments to Agent base class methods
   - Add Doxygen comments to BaseMotorsAgent interface
   - Add Doxygen comments to TB6612MotorsAgent public methods
@@ -72,14 +72,14 @@
   - Include parameter descriptions, return values, and preconditions
   - _Requirements: 3.1, 3.2, 3.3, 10.4_
 
-- [ ] 10. Improve inline documentation for complex algorithms
+- [x] 10. Improve inline documentation for complex algorithms
   - Add explanatory comments to mecanum kinematics in DDD::handleSubscriptionMsg()
   - Add comments to odometry calculation in DDD::updateOdom()
   - Add comments to PID algorithm in TB6612MotorPID::doPID()
   - Explain "why" not just "what" in comments
   - _Requirements: 3.4, 10.4_
 
-- [ ] 11. Build and flash firmware for initial testing
+- [x] 11. Build and flash firmware for initial testing
   - Build debug firmware: `make build`
   - Build release firmware: `make build_release`
   - Flash debug firmware to Pico: `make flash`

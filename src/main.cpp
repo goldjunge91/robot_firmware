@@ -1,10 +1,12 @@
 #include "BlinkAgent.h"
 #include "DDD.h"
 #include "FreeRTOS.h"
+// TODO: delete after successful micro-ROS-Agent connection-Test
 // #include "HCSR04Agent.h"
 #include "TB6612MotorsAgent.h"
 #include "PubEntities.h"
 #include "application/ImuAgent.h"
+// TODO: delete after successful micro-ROS-Agent connection-Test
 // #include "application/vl6180xAgent.hpp"
 #include "config/FirmwareConfig.h"
 #include "hardware/i2c.h"
@@ -58,10 +60,12 @@ void mainTask(void* params)
                   config::pins::kMotor3EncA, config::pins::kMotor3EncB);
   motors.configAllPID(config::pid::kProportional, config::pid::kIntegral, config::pid::kDerivative);
 
+  // TODO: delete after successful micro-ROS-Agent connection-Test
   // static HCSR04Agent range;
   // range.addSensor(0, "range_front");
   // range.addSensor(18, "range_back");
 
+  // TODO: delete after successful micro-ROS-Agent connection-Test
   // Konfiguration für den VL6180X Time-of-Flight Sensor (I2C)
   // hal::hardware::Vl6180x::Config tof_cfg{};
   // tof_cfg.bus = VL6180X_I2C_PORT;
@@ -82,29 +86,38 @@ void mainTask(void* params)
 
   static DDD ddd;
   ddd.setMotorsAgent(&motors);
+  // TODO: delete after successful micro-ROS-Agent connection-Test
   // ddd.setHCSR04Agent(&range);
   ddd.setImuAgent(&imu);
+  // TODO: delete after successful micro-ROS-Agent connection-Test
   // ddd.setVl6180xAgent(&tof);
 
-  // Starten der Agenten-Tasks
+  // Starten der Agenten-Tasks (mit kleinen Delays für saubere UART-Ausgabe)
   printf("Starting BlinkAgent...\n");
   blink.start("Blink", config::robot::kTaskPriority);
+  vTaskDelay(pdMS_TO_TICKS(100));
 
   printf("Starting MotorsAgent...\n");
   motors.start("Motors", config::robot::kTaskPriority);
+  vTaskDelay(pdMS_TO_TICKS(100));
 
-  // HCSR04Agent and VL6180X disabled for now
+  // TODO: delete after successful micro-ROS-Agent connection-Test
   // printf("Starting HCSR04Agent...\n");
   // range.start("Range", config::robot::kTaskPriority);
+  // vTaskDelay(pdMS_TO_TICKS(100));
 
+  // TODO: delete after successful micro-ROS-Agent connection-Test
   // printf("Starting Vl6180xAgent...\n");
   // tof.start("VL6180X", config::robot::kTaskPriority);
+  // vTaskDelay(pdMS_TO_TICKS(100));
 
   printf("Starting ImuAgent...\n");
   imu.start("IMU", config::robot::kTaskPriority);
+  vTaskDelay(pdMS_TO_TICKS(100));
 
   printf("Starting DDD Agent...\n");
   ddd.start("DDD", config::robot::kTaskPriority);
+  vTaskDelay(pdMS_TO_TICKS(100));
 
   // Starten der uROS Bridge
   printf("Starting uRosBridge...\n");
@@ -112,6 +125,7 @@ void mainTask(void* params)
   bridge->setuRosEntities(&ddd);
   bridge->setLed(config::pins::kConnectionLed);
   bridge->start("Bridge", config::robot::kTaskPriority + 2u);
+  vTaskDelay(pdMS_TO_TICKS(100));
   printf("micro-ROS bridge task started.\n");
 
   printf("All agents started. MainTask will now suspend.\n");
@@ -154,11 +168,11 @@ int main(void)
   // USB manuell für micro-ROS initialisieren
   stdio_usb_init();  // Macht USB für den Transport verfügbar
 
-  // UART0 debugging disabled for performance optimization (uncomment to enable)
-  // stdio_uart_init_full(uart0, 115200, 0, 1);  // Leitet printf auf UART um
+  // UART0 for debugging (115200 baud, 8N1)
+  stdio_uart_init_full(uart0, 115200, 0, 1);  // Leitet printf auf UART um
 
   sleep_ms(2000);
-  printf("\n\n-- Booting %s firmware (UART0 debug disabled for performance) --\n", config::robot::kName);
+  printf("\n\n-- Booting %s firmware --\n", config::robot::kName);
 
   // Start tasks and scheduler
   const char* rtos_name = "FreeRTOS";
