@@ -8,16 +8,44 @@ on:
         default: patch
         required: true
   pull_request:
-    branches: master
+    branches: ["main", "tb6612_fw"]
     types: [closed]
 
 jobs:
+  env:
+        PICO_SDK_PATH: ~/pico/pico-sdk
+        SDK_VERSION: 2.0.0
   get-bump:
     name: Get version bump
     runs-on: ubuntu-latest
     outputs:
       bump: ${{ env.BUMP }}
-    steps:
+   steps:
+      - uses: actions/checkout@v3
+      - name: Cache Pico SDK
+        id: cache-pico-sdk
+        uses: actions/cache@v3
+        with:
+          path: ~/pico
+          key: ${{ runner.os }}-pico-sdk-${{ env.SDK_VERSION }}
+      - name: Set up the toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
+      - name: Set up the Pi Pico SDK
+        if: steps.cache-pico-sdk.outputs.cache-hit != 'true'
+        run: |
+          mkdir ~/pico
+          cd ~/pico
+          git clone https://github.com/raspberrypi/pico-sdk.git --depth 1 --branch ${SDK_VERSION}
+          cd pico-sdk && git submodule update --init && cd ..
+      - name: Compile firmware
+        run: |
+          cd ${{ github.workspace }}
+          mkdir build
+          cd build
+          cmake ..
+          make
       - if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
         name: Get version bump
         id: get-version-bump
