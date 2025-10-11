@@ -49,7 +49,6 @@ High-level sensor agents:
 ### Utilities
 
 - `GPIOInputMgr`, `GPIOObserver` - GPIO interrupt handling
-- `HCSR04Agent` - Ultrasonic sensor management
 - `BlinkAgent` - LED status indicator
 
 ## Test Organization (`tests/`)

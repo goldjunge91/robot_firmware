@@ -11,8 +11,6 @@
 #define FIRMWARE_SRC_ROBOTCONTROLLER_H_
 
 #include "Agent.h"
-// TODO: delete after successful micro-ROS-Agent connection-Test
-// #include "HCSR04Agent.h"
 #include "BaseMotorsAgent.h"
 #include "uRosEntities.h"
 
@@ -55,13 +53,40 @@ class ImuAgent;
 // class Vl6180xAgent;
 }  // namespace application
 
-struct RobotOdom {
-    double x;
-    double y;
-    double a;
+/**
+ * @brief Odometry state representing robot pose in 2D space
+ * 
+ * Stores the robot's position (x, y) and orientation (a) in the global frame.
+ * Used for tracking cumulative odometry from wheel encoders and calculating
+ * instantaneous velocities.
+ */
+struct OdometryState {
+    double x{0.0};  ///< Position X in meters (global frame)
+    double y{0.0};  ///< Position Y in meters (global frame)
+    double a{0.0};  ///< Orientation angle in radians (global frame, counter-clockwise from X-axis)
+    
+    /**
+     * @brief Construct a new OdometryState with specified values
+     * 
+     * @param x_pos Initial X position in meters (default: 0.0)
+     * @param y_pos Initial Y position in meters (default: 0.0)
+     * @param angle Initial orientation in radians (default: 0.0)
+     */
+    constexpr OdometryState(double x_pos = 0.0, double y_pos = 0.0, double angle = 0.0)
+        : x(x_pos), y(y_pos), a(angle) {}
+    
+    /**
+     * @brief Reset odometry to origin
+     * 
+     * Sets position to (0, 0) and orientation to 0 radians.
+     * Useful for resetting odometry after relocalization or at startup.
+     */
+    void reset() {
+        x = 0.0;
+        y = 0.0;
+        a = 0.0;
+    }
 };
-
-typedef struct RobotOdom RobotOdom_t;
 
 class RobotController : public Agent, public uRosEntities {
 public:
@@ -97,9 +122,6 @@ public:
      * @warning Passing NULL will log an error and be rejected
      */
     void setMotorsAgent(BaseMotorsAgent *p);
-
-    // TODO: delete after successful micro-ROS-Agent connection-Test
-    // void setHCSR04Agent(HCSR04Agent *p);
 
     /**
      * @brief Set the IMU agent for inertial measurement data
@@ -300,15 +322,13 @@ private:
     void robotStop();
 
     BaseMotorsAgent *pMotorsAgent = NULL;
-    // TODO: delete after successful micro-ROS-Agent connection-Test
-    // HCSR04Agent *pHCSR04Agent = NULL;
     application::ImuAgent *pImuAgent = NULL;
     // TODO: delete after successful micro-ROS-Agent connection-Test
     // application::Vl6180xAgent *pVl6180xAgent = NULL;
 
-    RobotOdom_t xMotorsOdom;
-    RobotOdom_t xRobotOdom;
-    RobotOdom_t xRobotVelocity;
+    OdometryState xMotorsOdom;    ///< Odometry at wheel axis (before offset correction)
+    OdometryState xRobotOdom;     ///< Odometry at robot center (after offset correction)
+    OdometryState xRobotVelocity; ///< Instantaneous velocity (linear and angular)
 
     uint32_t xLastVelocityTime = 0u;  // milliseconds - last velocity calculation time
 

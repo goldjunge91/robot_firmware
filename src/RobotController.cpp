@@ -19,14 +19,12 @@
 
 using namespace Eigen;
 
-RobotController::RobotController() {
-    xMotorsOdom.x = 0.0 - kWheelsOffset;
-    xMotorsOdom.y = 0.0;
-    xMotorsOdom.a = 0.0;
-
-    xRobotOdom.x = 0.0;
-    xRobotOdom.y = 0.0;
-    xRobotOdom.a = 0.0;
+RobotController::RobotController() 
+    : xMotorsOdom(0.0 - kWheelsOffset, 0.0, 0.0),  // Initialize motors odometry with X offset
+      xRobotOdom(0.0, 0.0, 0.0),                    // Initialize robot odometry at origin
+      xRobotVelocity(0.0, 0.0, 0.0)                 // Initialize velocity to zero
+{
+    // Odometry state initialized via member initializer list
 }
 
 RobotController::~RobotController() {
@@ -344,10 +342,6 @@ void RobotController::createEntities(rcl_node_t *node, rclc_support_t *support) 
     if (pMotorsAgent != NULL) {
         pMotorsAgent->createEntities(node, support);
     }
-    // TODO: delete after successful micro-ROS-Agent connection-Test
-    // if (pHCSR04Agent != NULL) {
-    //     pHCSR04Agent->createEntities(node, support);
-    // }
     if (pImuAgent != NULL) {
         pImuAgent->createEntities(node, support);
     }
@@ -371,10 +365,6 @@ void RobotController::destroyEntities(rcl_node_t *node, rclc_support_t *support)
     if (pMotorsAgent != NULL) {
         pMotorsAgent->destroyEntities(node, support);
     }
-    // TODO: delete after successful micro-ROS-Agent connection-Test
-    // if (pHCSR04Agent != NULL) {
-    //     pHCSR04Agent->destroyEntities(node, support);
-    // }
     if (pImuAgent != NULL) {
         pImuAgent->destroyEntities(node, support);
     }
@@ -401,10 +391,6 @@ uint RobotController::getCount() {
     if (pMotorsAgent != NULL) {
         res += pMotorsAgent->getCount();
     }
-    // TODO: delete after successful micro-ROS-Agent connection-Test
-    // if (pHCSR04Agent != NULL) {
-    //     res += pHCSR04Agent->getCount();
-    // }
     if (pImuAgent != NULL) {
         res += pImuAgent->getCount();
     }
@@ -424,10 +410,6 @@ uint RobotController::getHandles() {
     if (pMotorsAgent != NULL) {
         res += pMotorsAgent->getHandles();
     }
-    // TODO: delete after successful micro-ROS-Agent connection-Test
-    // if (pHCSR04Agent != NULL) {
-    //     res += pHCSR04Agent->getHandles();
-    // }
     if (pImuAgent != NULL) {
         res += pImuAgent->getHandles();
     }
@@ -582,11 +564,6 @@ void RobotController::robotStop() {
         pMotorsAgent->setSpeedRadPS(3u, 0.0, false);  // Motor 3: Rear Right
     }
 }
-
-// TODO: delete after successful micro-ROS-Agent connection-Test
-// void RobotController::setHCSR04Agent(HCSR04Agent *p) {
-//     pHCSR04Agent = p;
-// }
 
 /**
  * @brief Set the IMU agent for inertial measurement data

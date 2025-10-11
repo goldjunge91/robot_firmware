@@ -8,7 +8,6 @@ The firmware uses a modular agent-based architecture built on FreeRTOS:
 
 - **uRosBridge**: Singleton managing micro-ROS communication over USB
 - **MotorsAgent**: PID-controlled motor management with encoder feedback
-- **HCSR04Agent**: Ultrasonic distance sensor management
 - **ImuAgent**: IMU (ICM20948) data acquisition via SPI
 - **Vl6180xAgent**: Time-of-Flight sensor via I2C
 - **DDD**: Main robot control agent handling odometry and cmd_vel

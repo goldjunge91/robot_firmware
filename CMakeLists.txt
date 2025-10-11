@@ -42,8 +42,8 @@ include(micro_ros.cmake)
 set(EIGEN_PATH "${CMAKE_CURRENT_LIST_DIR}/lib/eigen/" CACHE STRING "Common Lib")
 include(eigen_import.cmake)
 
-set(DISTANCE_SENSOR_PATH "${CMAKE_CURRENT_LIST_DIR}/lib/pico-distance-sensor/" CACHE STRING "Common Lib")
-include(distance_sensor.cmake)
+# set(DISTANCE_SENSOR_PATH "${CMAKE_CURRENT_LIST_DIR}/lib/pico-distance-sensor/" CACHE STRING "Common Lib")
+# include(distance_sensor.cmake)
 
 add_subdirectory(src)
 

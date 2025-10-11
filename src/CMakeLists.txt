@@ -13,17 +13,18 @@ add_executable(${NAME}
         MotorsAgent.cpp
         TB6612MotorsAgent.cpp
         RobotController.cpp
-        HCSR04Agent.cpp
         
         # Application Layer
         Agent.cpp
         BlinkAgent.cpp
         application/ImuAgent.cpp
-        application/vl6180xAgent.cpp
+        # TODO: delete after successful micro-ROS-Agent connection-Test
+        # application/vl6180xAgent.cpp
 
         # Hardware Abstraction Layer
         hal/hardware/Icm20948Simple.cpp
-        hal/hardware/vl6180x/vl6180x_driver.cpp
+        # TODO: delete after successful micro-ROS-Agent connection-Test
+        # hal/hardware/vl6180x/vl6180x_driver.cpp
 
         # Micro-ROS
         uRosBridge.cpp
@@ -47,7 +48,6 @@ target_link_libraries(${NAME} PRIVATE
     micro_ros
     pico_rand
     eigen
-    distance_sensor
 )
 
         # Find Eigen3 (system) so <Eigen/Core> resolves when building firmware

@@ -116,7 +116,7 @@
   - Test with robot stationary and moving
   - _Requirements: 4.3, 9.2_
 
-- [-] 15. Verify odometry calculations
+- [x] 15. Verify odometry calculations
   - Monitor odometry: `ros2 topic echo /odom`
   - Command robot to move forward 1 meter
   - Verify odometry position updates correctly
@@ -125,7 +125,7 @@
   - Compare odometry with expected values
   - _Requirements: 4.4, 9.1_
 
-- [ ] 16. Completely remove HCSR04 sensor code
+- [x] 16. Completely remove HCSR04 sensor code
   - Delete `src/HCSR04Agent.h`
   - Delete `src/HCSR04Agent.cpp`
   - Remove all commented HCSR04 references from main.cpp
@@ -135,7 +135,7 @@
   - Verify firmware builds successfully
   - _Requirements: 2.1, 2.5, 8.4_
 
-- [ ] 17. Completely remove VL6180X sensor code
+- [ ]* 17. Completely remove VL6180X sensor code
   - Delete `src/application/vl6180xAgent.hpp`
   - Delete `src/application/vl6180xAgent.cpp`
   - Delete `src/hal/hardware/vl6180x/` directory
@@ -146,7 +146,7 @@
   - Verify firmware builds successfully
   - _Requirements: 2.2, 2.5, 8.4_
 
-- [ ] 18. Modernize odometry data structures
+- [x] 18. Modernize odometry data structures
   - Replace `DDDOdom_t` typedef with modern `OdometryState` struct
   - Add default member initializers to struct
   - Add constructor with default parameters
