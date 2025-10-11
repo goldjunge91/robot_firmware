@@ -12,7 +12,7 @@ add_executable(${NAME}
         PubEntities.cpp
         MotorsAgent.cpp
         TB6612MotorsAgent.cpp
-        DDD.cpp
+        RobotController.cpp
         HCSR04Agent.cpp
         
         # Application Layer
