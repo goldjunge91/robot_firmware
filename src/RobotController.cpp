@@ -1,11 +1,13 @@
 /*
- * DDD.cpp
+ * RobotController.cpp
  *
  * Created on: 7 Aug 2023
  * Author: jondurrant
+ * 
+ * Renamed from DDD.cpp to RobotController.cpp for clarity
  */
 
-#include "DDD.h"
+#include "RobotController.h"
 
 #include "application/ImuAgent.h"
 // TODO: delete after successful micro-ROS-Agent connection-Test
@@ -17,17 +19,17 @@
 
 using namespace Eigen;
 
-DDD::DDD() {
+RobotController::RobotController() {
     xMotorsOdom.x = 0.0 - kWheelsOffset;
     xMotorsOdom.y = 0.0;
     xMotorsOdom.a = 0.0;
 
-    xDDDOdom.x = 0.0;
-    xDDDOdom.y = 0.0;
-    xDDDOdom.a = 0.0;
+    xRobotOdom.x = 0.0;
+    xRobotOdom.y = 0.0;
+    xRobotOdom.a = 0.0;
 }
 
-DDD::~DDD() {
+RobotController::~RobotController() {
     // TODO Auto-generated destructor stub
 }
 
