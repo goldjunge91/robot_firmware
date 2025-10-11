@@ -88,17 +88,16 @@
   - Check for any error messages or warnings
   - _Requirements: 4.2, 4.3, 5.2, 5.3, 5.4, 8.2_
 
-- [ ] 12. Test micro-ROS connection and topic communication
-  - Start micro-ROS agent on host PC
-  - Verify Pico connects to agent successfully
-  - List ROS topics: `ros2 topic list`
-  - Verify expected topics exist: `/joint_states`, `/imu/data_raw`, `/odom`, `/cmd_vel`
-  - Echo IMU data: `ros2 topic echo /imu/data_raw --once`
-  - Echo odometry: `ros2 topic echo /odom --once`
-  - Verify data is being published correctly
-  - _Requirements: 4.1, 4.4, 4.5, 8.3_
+- [x] 12. Test micro-ROS connection and topic communication
+  - ✅ micro-ROS agent running on Raspberry Pi
+  - ✅ Pico connected successfully via USB
+  - ✅ All expected topics verified: `/cmd_vel`, `/imu/data_raw`, `/joint_states`, `/odometry/wheels`
+  - ✅ IMU data publishing correctly
+  - ✅ Odometry data publishing correctly
+  - ✅ Joint states data publishing correctly
+  - _Requirements: 4.1, 4.4, 4.5, 8.3_ ✅ VERIFIED
 
-- [ ] 13. Test motor control functionality
+- [x] 13. Test motor control functionality
   - Publish forward velocity command: `ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.1, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}" --once`
   - Verify motors respond and robot moves forward
   - Test backward movement (negative x)
@@ -109,7 +108,7 @@
   - Verify PID control maintains target speeds
   - _Requirements: 4.1, 4.2, 9.1, 9.2_
 
-- [ ] 14. Verify IMU data publishing
+- [x] 14. Verify IMU data publishing
   - Monitor IMU topic: `ros2 topic hz /imu/data_raw`
   - Verify publishing rate is ~100Hz
   - Check data quality (reasonable acceleration and gyro values)
@@ -117,7 +116,7 @@
   - Test with robot stationary and moving
   - _Requirements: 4.3, 9.2_
 
-- [ ] 15. Verify odometry calculations
+- [-] 15. Verify odometry calculations
   - Monitor odometry: `ros2 topic echo /odom`
   - Command robot to move forward 1 meter
   - Verify odometry position updates correctly
