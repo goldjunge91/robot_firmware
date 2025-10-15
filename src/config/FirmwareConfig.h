@@ -268,4 +268,70 @@ namespace debug {
 
 }  // namespace config
 
+/**
+ * @section compile_time_validation Compile-Time Configuration Validation
+ * 
+ * These static_assert statements validate configuration constants at compile time,
+ * catching configuration errors before the firmware is built. This prevents runtime
+ * failures due to invalid configuration values.
+ * 
+ * Configuration Constraints Enforced:
+ * 
+ * **Motor Configuration:**
+ * - Number of motors must be exactly 4 (mecanum drive requirement)
+ * 
+ * **Task Priorities:**
+ * - Task priority must be greater than tskIDLE_PRIORITY (to ensure execution)
+ * - Task priority must be less than configMAX_PRIORITIES (FreeRTOS limit)
+ * 
+ * **PID Controller:**
+ * - All PID gains (Kp, Ki, Kd) must be non-negative
+ * 
+ * **PWM Configuration:**
+ * - PWM frequency must be between 1 kHz and 100 kHz (hardware limits)
+ * 
+ * **IMU Configuration:**
+ * - SPI baudrate must be between 100 kHz and 10 MHz (sensor limits)
+ * 
+ * **Debug Configuration:**
+ * - Heartbeat interval must be at least 100ms (to avoid log spam)
+ * 
+ * @note If any assertion fails, the build will stop with a descriptive error message.
+ * @note Additional robot physical constraints are validated in RobotController.h
+ */
+
+// Validate motor configuration
+static_assert(config::robot::kNumMotors == 4u, 
+    "Mecanum drive requires exactly 4 motors (front-left, front-right, rear-left, rear-right)");
+
+// Validate task priority is above idle
+static_assert(config::robot::kTaskPriority > tskIDLE_PRIORITY,
+    "Task priority must be greater than idle priority to ensure tasks execute");
+
+// Validate task priority is within valid range (FreeRTOS max priority is configMAX_PRIORITIES - 1)
+static_assert(config::robot::kTaskPriority < configMAX_PRIORITIES,
+    "Task priority must be less than configMAX_PRIORITIES");
+
+// Validate PID gains are non-negative
+static_assert(config::pid::kProportional >= 0.0f,
+    "PID proportional gain (Kp) must be non-negative");
+
+static_assert(config::pid::kIntegral >= 0.0f,
+    "PID integral gain (Ki) must be non-negative");
+
+static_assert(config::pid::kDerivative >= 0.0f,
+    "PID derivative gain (Kd) must be non-negative");
+
+// Validate PWM frequency is reasonable (1 kHz to 100 kHz range)
+static_assert(config::pwm::kTargetFrequency >= 1000u && config::pwm::kTargetFrequency <= 100000u,
+    "PWM frequency must be between 1 kHz and 100 kHz for proper motor control");
+
+// Validate IMU SPI baudrate is reasonable (100 kHz to 10 MHz range)
+static_assert(config::imu::kSpiBaudrate >= 100000u && config::imu::kSpiBaudrate <= 10000000u,
+    "IMU SPI baudrate must be between 100 kHz and 10 MHz");
+
+// Validate debug heartbeat interval is reasonable (at least 100ms)
+static_assert(config::debug::kHeartbeatIntervalMs >= 100u,
+    "Heartbeat interval must be at least 100ms to avoid excessive logging");
+
 #endif  // FIRMWARE_CONFIG_H

@@ -2,15 +2,65 @@
 
 Raspberry Pi Pico firmware for the my_steel robot, implementing motor control, sensor integration, and micro-ROS communication.
 
+## Recent Modernization (2025)
+
+The firmware has been modernized to use modern C++ practices while maintaining full backward compatibility:
+
+### Key Improvements
+
+- **Modern C++ Configuration**: Replaced `#define` macros with type-safe `inline constexpr` constants organized in namespaces
+- **Enhanced Type Safety**: Added explicit type annotations, bounds checking, and null pointer validation
+- **Improved Documentation**: Added comprehensive Doxygen comments for all public APIs
+- **Simplified Codebase**: Removed unused HCSR04 ultrasonic sensor support
+- **Better Error Handling**: Added runtime validation with clear error messages
+
+### C++ Requirements
+
+- **Minimum Standard**: C++14 (C++17 recommended)
+- **Compiler**: GCC ARM toolchain with C++14+ support
+- **Features Used**: `constexpr`, scoped enums, default member initializers, explicit type conversions
+
+### Configuration System
+
+All firmware configuration is now centralized in `src/config/FirmwareConfig.h` using namespace-based constants:
+
+```cpp
+// Pin configuration
+config::pins::kMotor0In1
+config::pins::kMotor0Pwm
+config::pins::kImuCs
+
+// Robot parameters
+config::robot::kRobotName
+config::robot::kTaskPriority
+
+// PID tuning
+config::pid::kProportional
+config::pid::kIntegral
+config::pid::kDerivative
+
+// Debug settings
+config::debug::kEnableHeartbeat
+config::debug::kHeartbeatIntervalMs
+```
+
+This replaces the old `#define` macro system and provides better type safety and IDE support.
+
 ## Architecture
 
 The firmware uses a modular agent-based architecture built on FreeRTOS:
 
 - **uRosBridge**: Singleton managing micro-ROS communication over USB
-- **MotorsAgent**: PID-controlled motor management with encoder feedback
+- **TB6612MotorsAgent**: PID-controlled motor management with encoder feedback for 4 mecanum wheels
 - **ImuAgent**: IMU (ICM20948) data acquisition via SPI
-- **Vl6180xAgent**: Time-of-Flight sensor via I2C
-- **DDD**: Main robot control agent handling odometry and cmd_vel
+- **DDD**: Main robot control agent handling odometry, cmd_vel, and mecanum kinematics
+- **BlinkAgent**: LED status indicator
+
+### Removed Components
+
+The following sensors have been removed as part of the modernization:
+- **HCSR04Agent**: Ultrasonic distance sensor (removed in 2025)
+- **Vl6180xAgent**: Time-of-Flight sensor (optional, can be removed if not needed)
 
 ## Hardware Configuration
 
@@ -46,9 +96,10 @@ The firmware uses a modular agent-based architecture built on FreeRTOS:
 
 - Raspberry Pi Pico SDK
 - CMake 3.13+
-- GCC ARM toolchain
+- GCC ARM toolchain with C++14 or C++17 support
 - FreeRTOS (included as submodule)
 - micro-ROS for Pico (included as submodule)
+- Eigen3 (included as submodule for linear algebra)
 
 ### Build Commands
 
@@ -129,38 +180,137 @@ When firmware is running and micro-ROS agent is connected:
 
 ```bash
 # Published by Pico
-/pico_count        # std_msgs/Int32 - heartbeat counter
-/odom              # nav_msgs/Odometry - robot odometry
-/imu/data          # sensor_msgs/Imu - IMU data
-/range_front       # sensor_msgs/Range - front distance
-/range_back        # sensor_msgs/Range - back distance
+/joint_states      # sensor_msgs/JointState - motor encoder states
+/odometry/wheels   # nav_msgs/Odometry - wheel odometry
+/imu/data_raw      # sensor_msgs/Imu - raw IMU data
 
 # Subscribed by Pico  
-/cmd_vel           # geometry_msgs/Twist - velocity commands
+/cmd_vel           # geometry_msgs/Twist - velocity commands (mecanum kinematics)
 ```
+
+**Note**: HCSR04 ultrasonic sensor topics (`/range_front`, `/range_back`) have been removed as of 2025 modernization.
 
 ## Configuration
 
+### Centralized Configuration
+
+All firmware configuration is now centralized in `src/config/FirmwareConfig.h`. This provides type-safe, namespace-organized constants with full IDE support.
+
 ### Robot Parameters
 
-Edit `firmware/src/DDD.h` for robot-specific parameters:
+Edit `src/config/FirmwareConfig.h` for robot-specific parameters:
 
 ```cpp
-#define WHEEL_RADIUS 0.065      // meters
-#define WHEEL_DEPTH 0.055       // meters  
-#define WHEELS_SEP 0.204        // meters
-#define WHEELS_OFFSET 0.010     // meters
+namespace config {
+namespace robot {
+    inline constexpr float kWheelRadius = 0.065f;      // meters
+    inline constexpr float kWheelDepth = 0.055f;       // meters  
+    inline constexpr float kWheelsSeparation = 0.204f; // meters
+    inline constexpr float kWheelsOffset = 0.010f;     // meters
+    inline constexpr size_t kNumMotors = 4;            // mecanum drive
+}
+}
 ```
 
 ### PID Tuning
 
-Edit `firmware/src/main.cpp` for motor PID parameters:
+Edit `src/config/FirmwareConfig.h` for motor PID parameters:
 
 ```cpp
-#define KP 0.55    // Proportional gain
-#define KI 0.019   // Integral gain  
-#define KD 0.24    // Derivative gain
+namespace config {
+namespace pid {
+    inline constexpr float kProportional = 0.55f;  // P gain
+    inline constexpr float kIntegral = 0.019f;     // I gain  
+    inline constexpr float kDerivative = 0.24f;    // D gain
+}
+}
 ```
+
+### Pin Configuration
+
+All pin assignments are defined in `src/config/FirmwareConfig.h`:
+
+```cpp
+namespace config {
+namespace pins {
+    // Motor 0 (Front Left)
+    inline constexpr uint8_t kMotor0In1 = 2;
+    inline constexpr uint8_t kMotor0In2 = 3;
+    inline constexpr uint8_t kMotor0Pwm = 4;
+    inline constexpr uint8_t kMotor0EncA = 5;
+    inline constexpr uint8_t kMotor0EncB = 6;
+    
+    // IMU (SPI)
+    inline constexpr uint8_t kImuMiso = 16;
+    inline constexpr uint8_t kImuCs = 17;
+    inline constexpr uint8_t kImuSck = 18;
+    inline constexpr uint8_t kImuMosi = 19;
+    
+    // LEDs
+    inline constexpr uint8_t kBlinkLed = 25;
+    inline constexpr uint8_t kConnectionLed = 26;
+}
+}
+```
+
+### Debug Configuration
+
+Enable/disable debug features in `src/config/FirmwareConfig.h`:
+
+```cpp
+namespace config {
+namespace debug {
+    inline constexpr bool kEnableHeartbeat = true;
+    inline constexpr uint32_t kHeartbeatIntervalMs = 5000u;
+    inline constexpr bool kEnableStackMonitoring = true;
+}
+}
+```
+
+## Migration Guide (Pre-2025 to Modernized)
+
+If you're updating from the pre-modernization firmware:
+
+### Configuration Changes
+
+**Old approach (macros):**
+```cpp
+#define MOTOR_0_IN1 2
+#define KP 0.55
+```
+
+**New approach (namespaced constants):**
+```cpp
+config::pins::kMotor0In1
+config::pid::kProportional
+```
+
+### Removed Features
+
+- **HCSR04 ultrasonic sensor**: Completely removed. If you need distance sensing, consider adding VL6180X or similar ToF sensor.
+- **Range topics**: `/range_front` and `/range_back` topics no longer published.
+
+### Build System Changes
+
+The CMakeLists.txt now requires C++14 minimum:
+
+```cmake
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+```
+
+Ensure your toolchain supports C++14 or later (most modern ARM GCC toolchains do).
+
+### Testing After Migration
+
+1. **Build verification**: `make build` should complete without warnings
+2. **Flash test**: Upload firmware and verify boot sequence via UART
+3. **Connection test**: Verify micro-ROS agent connection
+4. **Topic verification**: Check that `/joint_states`, `/imu/data_raw`, `/odometry/wheels` are published
+5. **Motor test**: Send `/cmd_vel` commands and verify motor response
+6. **Integration test**: Run 30-minute stress test to verify stability
+
+See `INTEGRATION_TEST_SUMMARY.md` for detailed testing procedures.
 
 ## Troubleshooting
 
@@ -186,6 +336,17 @@ Edit `firmware/src/main.cpp` for motor PID parameters:
    - Verify power supply (motors need separate power)
    - Check encoder wiring
 
+5. **Build errors after updating**
+   - Verify C++14 or C++17 support in toolchain
+   - Check that `CMAKE_CXX_STANDARD` is set to 14 or higher
+   - Ensure all submodules are updated: `git submodule update --init --recursive`
+   - Clean build directory: `make clean && make build`
+
+6. **Missing sensor topics after update**
+   - HCSR04 ultrasonic sensor has been removed (expected behavior)
+   - Check that expected topics are `/joint_states`, `/imu/data_raw`, `/odometry/wheels`
+   - VL6180X ToF sensor may be optionally removed depending on configuration
+
 ### Debug Logging
 
 The firmware provides extensive UART logging:
@@ -200,12 +361,24 @@ The firmware provides extensive UART logging:
 
 ## Development
 
+### Code Quality Standards
+
+The modernized codebase follows these standards:
+
+- **Type Safety**: Use explicit types with suffix notation (`0.5f` for float, `100u` for unsigned)
+- **Constants**: Use `inline constexpr` in namespaces instead of `#define` macros
+- **Enums**: Use scoped enums (`enum class`) for type safety
+- **Error Handling**: Add null checks and bounds validation with clear error messages
+- **Documentation**: Use Doxygen comments for all public APIs
+
 ### Adding New Sensors
 
 1. Create new agent class inheriting from `Agent`
 2. Implement hardware initialization in constructor
-3. Add to main task initialization in `main.cpp`
-4. Register with `DDD` agent for ROS integration
+3. Add configuration constants to `src/config/FirmwareConfig.h`
+4. Add to main task initialization in `main.cpp`
+5. Register with `DDD` agent for ROS integration if needed
+6. Add comprehensive Doxygen documentation
 
 ### Modifying ROS Interface
 
@@ -213,14 +386,64 @@ The firmware provides extensive UART logging:
 2. Update entity counts in `getCount()` and `getHandles()`
 3. Add publishers/subscribers in `createEntities()`
 4. Handle messages in `handleSubscriptionMsg()`
+5. Update documentation to reflect new topics
+
+### Type Safety Guidelines
+
+```cpp
+// ✅ Good: Explicit types with suffix notation
+inline constexpr float kWheelRadius = 0.065f;
+inline constexpr uint32_t kTimeout = 1000u;
+inline constexpr double kPreciseValue = 3.14159265359;
+
+// ❌ Avoid: Implicit types
+#define WHEEL_RADIUS 0.065
+#define TIMEOUT 1000
+
+// ✅ Good: Scoped enum
+enum class MotorDirection : uint8_t {
+    Clockwise,
+    CounterClockwise
+};
+
+// ❌ Avoid: Unscoped enum
+enum MotorDirection {
+    CLOCKWISE,
+    COUNTER_CLOCKWISE
+};
+
+// ✅ Good: Bounds checking
+void setMotorSpeed(uint index, float speed) {
+    if (index >= config::robot::kNumMotors) {
+        printf("[ERROR] Motor index out of bounds\n");
+        return;
+    }
+    // ... safe to proceed
+}
+
+// ❌ Avoid: No validation
+void setMotorSpeed(uint index, float speed) {
+    motors[index]->setSpeed(speed);  // potential crash
+}
+```
 
 ## Performance Notes
 
 - Main loop runs at ~100Hz
 - micro-ROS publishing is queued (128 message buffer)
 - IMU sampling at 100Hz
-- Motor PID control at 50Hz
-- Sensor readings at 10Hz
+- Motor PID control at 50Hz (per motor)
+- Odometry calculation at 10Hz
+- Stack monitoring available via `getStakHighWater()` for each agent
+
+### Performance Impact of Modernization
+
+The modernization maintains or improves performance:
+
+- **Compile-time optimization**: `constexpr` enables compile-time evaluation
+- **Zero-cost abstractions**: Scoped enums and namespaces have no runtime overhead
+- **Minimal validation overhead**: Bounds checking adds single comparison per call
+- **Reduced binary size**: Removed HCSR04 sensor code reduces flash usage
 
 ## Dependencies
 
@@ -301,15 +524,3 @@ Mit `gh` CLI wird der Release automatisch hochgeladen!
 ## 📁 Warum nicht in Git?
 
 **Binaries (.uf2) gehören NICHT ins Repository!**
-
-✅ Vorteile von GitHub Releases:
-- Keine Repo-Bloat
-- Schnellere Clones
-- Offizielle Release-Artefakte
-- Download-Statistiken
-- Release Notes
-
-❌ Nachteile von Git-versioned Binaries:
-- Repository wird riesig
-- Langsame Clones
-- Verschmutzt Git-Historie

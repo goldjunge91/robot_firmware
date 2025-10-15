@@ -5,3 +5,6 @@ build*
 
 # Ignore all releases (uploaded to GitHub Releases instead)
 releases/
+cmake-build-debug
+cmake-build-debug/
+cmake-build-release

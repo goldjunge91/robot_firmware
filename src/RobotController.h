@@ -47,6 +47,51 @@ inline constexpr uint32_t kMaxTwistTimeMs = 1500u; // milliseconds - max time wi
 #define WHEELS_OFFSET kWheelsOffset
 #define MAX_TWIST_TIME_MS kMaxTwistTimeMs
 
+/**
+ * @section robot_config_validation Robot Physical Configuration Validation
+ * 
+ * These compile-time assertions validate that robot physical parameters are
+ * within reasonable ranges. Invalid values would cause incorrect kinematics
+ * calculations and robot behavior.
+ * 
+ * Physical Constraints Enforced:
+ * 
+ * **Wheel Dimensions:**
+ * - Wheel radius: 1cm < radius < 50cm (realistic wheel sizes)
+ * - Wheel depth: 1cm < depth < 20cm (realistic wheel widths)
+ * 
+ * **Robot Geometry:**
+ * - Wheel separation: 5cm < separation < 2m (realistic robot sizes)
+ * - Wheel offset: 0cm ≤ offset < 50cm (non-negative, reasonable offset)
+ * 
+ * **Safety Timeouts:**
+ * - Twist timeout: 100ms ≤ timeout ≤ 10s (safe operation range)
+ * 
+ * @note These constraints ensure the mecanum kinematics calculations produce
+ *       valid results and the robot operates safely.
+ * @note If any assertion fails, the build will stop with a descriptive error message.
+ */
+
+// Validate wheel radius is positive and reasonable (between 1cm and 50cm)
+static_assert(kWheelRadius > 0.01 && kWheelRadius < 0.5,
+    "Wheel radius must be positive and between 1cm and 50cm for realistic robot dimensions");
+
+// Validate wheel depth is positive and reasonable (between 1cm and 20cm)
+static_assert(kWheelDepth > 0.01 && kWheelDepth < 0.2,
+    "Wheel depth must be positive and between 1cm and 20cm for realistic wheel dimensions");
+
+// Validate wheel separation is positive and reasonable (between 5cm and 2m)
+static_assert(kWheelsSeparation > 0.05 && kWheelsSeparation < 2.0,
+    "Wheel separation must be positive and between 5cm and 2m for realistic robot dimensions");
+
+// Validate wheel offset is non-negative and reasonable (less than 50cm)
+static_assert(kWheelsOffset >= 0.0 && kWheelsOffset < 0.5,
+    "Wheel offset must be non-negative and less than 50cm for realistic robot dimensions");
+
+// Validate twist timeout is reasonable (between 100ms and 10 seconds)
+static_assert(kMaxTwistTimeMs >= 100u && kMaxTwistTimeMs <= 10000u,
+    "Twist timeout must be between 100ms and 10 seconds for safe operation");
+
 namespace application {
 class ImuAgent;
 // TODO: delete after successful micro-ROS-Agent connection-Test
