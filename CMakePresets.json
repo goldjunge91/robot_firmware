@@ -1,0 +1,44 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 13,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "pico-debug",
+      "displayName": "Pico Debug",
+      "description": "Debug build for Raspberry Pi Pico",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "PICO_SDK_PATH": "/Users/marco/pico-sdk",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "pico-release",
+      "displayName": "Pico Release",
+      "description": "Release build for Raspberry Pi Pico",
+      "binaryDir": "${sourceDir}/build_release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "PICO_SDK_PATH": "/Users/marco/pico-sdk",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "pico-debug",
+      "configurePreset": "pico-debug",
+      "jobs": 6
+    },
+    {
+      "name": "pico-release",
+      "configurePreset": "pico-release",
+      "jobs": 6
+    }
+  ]
+}

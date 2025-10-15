@@ -31,8 +31,3 @@ TEST_F(TB6612MotorPIDTest, BrakeModeWorks) {
     EXPECT_TRUE(motor_pid->getIN2State());
     EXPECT_FLOAT_EQ(motor_pid->getThrottle(), 0.0f);
 }
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

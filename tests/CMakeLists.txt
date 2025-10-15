@@ -1,75 +1,73 @@
 # ==============================================================================
-# Robot Firmware Test Suite - CMake Configuration
+# Robot Firmware Test Suite
 # ==============================================================================
 cmake_minimum_required(VERSION 3.13)
-
 project(robot_firmware_tests CXX)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Compiler warnings
-add_compile_options(-Wall -Wextra -Wpedantic -Werror=return-type)
+# GoogleTest
+set(GOOGLETEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../googletest")
 
-# ==============================================================================
-# Google Test Configuration
-# ==============================================================================
-include(FetchContent)
-FetchContent_Declare(
-    googletest
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG v1.14.0
+if(EXISTS "${GOOGLETEST_DIR}/CMakeLists.txt")
+    message(STATUS "Using local GoogleTest from: ${GOOGLETEST_DIR}")
+    add_subdirectory(${GOOGLETEST_DIR} ${CMAKE_CURRENT_BINARY_DIR}/googletest EXCLUDE_FROM_ALL)
+else()
+    message(STATUS "Local GoogleTest not found, fetching from GitHub...")
+    include(FetchContent)
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG v1.14.0
+    )
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
+endif()
+
+# Include directories
+include_directories(
+    ../src
+    .
+    mocks
+    hal
+    ${gtest_SOURCE_DIR}/include
+    ${gtest_SOURCE_DIR}
 )
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
 
-enable_testing()
-include(GoogleTest)
+# Compiler definitions for tests
+add_definitions(-DUNIT_TEST -DPICO_PLATFORM=host)
 
 # ==============================================================================
-# Mock Pico SDK
+# Test Source Files
 # ==============================================================================
-add_library(mock_pico_sdk INTERFACE)
-target_include_directories(mock_pico_sdk INTERFACE 
-    ${CMAKE_CURRENT_SOURCE_DIR}/mocks
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src
-)
-target_compile_definitions(mock_pico_sdk INTERFACE PICO_PLATFORM=host UNIT_TEST)
-
-set(FIRMWARE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../src")
-
-# ==============================================================================
-# Test Executables
-# ==============================================================================
-
-# Test 1: Motor PID
-add_executable(test_motor_pid
+set(TEST_SOURCE_FILES
+    tests1.cpp
     test_motor_pid.cpp
-    mocks/mock_motor_mgr.cpp
-    ${FIRMWARE_SRC_DIR}/MotorPID.cpp
-)
-target_link_libraries(test_motor_pid PRIVATE GTest::gtest_main GTest::gmock mock_pico_sdk)
-gtest_discover_tests(test_motor_pid PROPERTIES TIMEOUT 30)
-
-# Test 2: TB6612 Motor PID
-add_executable(test_tb6612_motor_pid
     test_tb6612_motor_pid.cpp
+    test_basic_math.cpp
+    test_hal_mocks.cpp
+    test_mecanum_kinematics.cpp
+    test_odometry.cpp
+    test_topic_names.cpp
+)
+
+set(MOCK_FILES
+    mocks/mock_motor_mgr.cpp
     mocks/mock_tb6612_motor_mgr.cpp
-    ${FIRMWARE_SRC_DIR}/TB6612MotorPID.cpp
-)
-target_link_libraries(test_tb6612_motor_pid PRIVATE GTest::gtest_main GTest::gmock mock_pico_sdk)
-gtest_discover_tests(test_tb6612_motor_pid PROPERTIES TIMEOUT 30)
-
-# ==============================================================================
-# Custom Targets
-# ==============================================================================
-add_custom_target(run_all_tests
-    COMMAND ${CMAKE_CTEST_COMMAND} --verbose --output-on-failure
-    DEPENDS test_motor_pid test_tb6612_motor_pid
-    COMMENT "Running all firmware tests..."
+    hal/mocks/I2CMock.cpp
+    hal/mocks/GPIOMock.cpp
 )
 
-message(STATUS "========================================")
-message(STATUS "Robot Firmware Test Suite")
-message(STATUS "C++ Standard: C++${CMAKE_CXX_STANDARD}")
-message(STATUS "========================================")
+set(FIRMWARE_FILES
+    ../src/MotorPID.cpp
+    ../src/TB6612MotorPID.cpp
+)
+
+# ==============================================================================
+# Test Executable
+# ==============================================================================
+add_executable(Firmware_gTests_run 
+    ${TEST_SOURCE_FILES}
+    ${MOCK_FILES}
+    ${FIRMWARE_FILES}
+)
+
+target_link_libraries(Firmware_gTests_run gtest)

@@ -8,9 +8,16 @@
 #ifndef ENCODER_SRC_MOTORMGR_H_
 #define ENCODER_SRC_MOTORMGR_H_
 
-#include <pico/stdlib.h>
-#include "stdio.h"
-#include "hardware/pwm.h"
+#include <stdio.h>
+
+#ifdef UNIT_TEST
+    #include <cstdint>
+    typedef uint8_t uint;
+#else
+    #include <pico/stdlib.h>
+    #include "hardware/pwm.h"
+#endif
+
 #include "GPIOInputMgr.h"
 #include "GPIOObserver.h"
 

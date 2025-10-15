@@ -8,7 +8,11 @@
 #ifndef ENCODER_SRC_MOTORPID_H_
 #define ENCODER_SRC_MOTORPID_H_
 
-#include "MotorMgr.h"
+#ifdef UNIT_TEST
+    #include "mock_motor_mgr.h"
+#else
+    #include "MotorMgr.h"
+#endif
 
 class MotorPID : public MotorMgr {
 public:

@@ -22,6 +22,9 @@ public:
     virtual int32_t getPosition() const;
 
 protected:
+    // Match the real MotorMgr interface for derived classes
+    bool xCW = true;
+    
     float m_throttle = 0.0f;
     bool m_direction_cw = true;
     float m_current_rpm = 0.0f;

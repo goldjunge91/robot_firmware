@@ -7,6 +7,10 @@
     <mapping directory="$PROJECT_DIR$/lib/eigen" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/micro_ros_raspberrypi_pico_sdk" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/pico-distance-sensor" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/tests/build/_deps/googletest-src" vcs="Git" />
+    <mapping directory="$USER_HOME$/pico-sdk/lib/btstack" vcs="Git" />
+    <mapping directory="$USER_HOME$/pico-sdk/lib/cyw43-driver" vcs="Git" />
+    <mapping directory="$USER_HOME$/pico-sdk/lib/lwip" vcs="Git" />
+    <mapping directory="$USER_HOME$/pico-sdk/lib/mbedtls" vcs="Git" />
+    <mapping directory="$USER_HOME$/pico-sdk/lib/tinyusb" vcs="Git" />
   </component>
 </project>

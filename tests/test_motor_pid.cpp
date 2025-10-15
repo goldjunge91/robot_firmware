@@ -29,8 +29,3 @@ TEST_F(MotorPIDTest, PIDRespondsToError) {
     float throttle2 = motor_pid->doPID();
     EXPECT_NE(throttle1, throttle2);
 }
-
-int main(int argc, char** argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

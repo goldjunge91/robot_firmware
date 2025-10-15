@@ -46,11 +46,15 @@ include(eigen_import.cmake)
 # include(distance_sensor.cmake)
 
 add_subdirectory(src)
+add_subdirectory(port)
 
-# Add tests only when building for host (not for Pico)
-if(NOT PICO_PLATFORM)
-    # Add locally cloned GoogleTest
-    add_subdirectory("googletest" "googletest/make_googletest_output")
+# ==============================================================================
+# Unit Tests (only when not cross-compiling for Pico)
+# ==============================================================================
+option(BUILD_TESTS "Build unit tests" OFF)
+
+if(BUILD_TESTS)
+    message(STATUS "Building unit tests...")
     add_subdirectory(tests)
 endif()
 

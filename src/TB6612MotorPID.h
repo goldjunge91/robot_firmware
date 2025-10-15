@@ -10,7 +10,11 @@
 #ifndef FIRMWARE_SRC_TB6612MOTORPID_H_
 #define FIRMWARE_SRC_TB6612MOTORPID_H_
 
-#include "TB6612MotorMgr.h"
+#ifdef UNIT_TEST
+    #include "mock_tb6612_motor_mgr.h"
+#else
+    #include "TB6612MotorMgr.h"
+#endif
 
 class TB6612MotorPID : public TB6612MotorMgr {
 public:

@@ -15,6 +15,7 @@ MotorMgr::~MotorMgr() {}
 void MotorMgr::setThrottle(float throttle, bool cw) {
     m_throttle = std::max(0.0f, std::min(1.0f, throttle));
     m_direction_cw = cw;
+    xCW = cw;
 }
 
 float MotorMgr::getThrottle() const { return m_throttle; }

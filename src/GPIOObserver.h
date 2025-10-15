@@ -10,9 +10,16 @@
 #ifndef PIR_PIRTIMER_SRC_GPIOOBSERVER_H_
 #define PIR_PIRTIMER_SRC_GPIOOBSERVER_H_
 
-#include "pico/stdlib.h"
 #include <cstddef>
 #include <stdlib.h>
+
+#ifdef UNIT_TEST
+    #include <cstdint>
+    typedef uint8_t uint;
+    typedef uint32_t uint32_t;
+#else
+    #include "pico/stdlib.h"
+#endif
 
 
 class GPIOObserver {
