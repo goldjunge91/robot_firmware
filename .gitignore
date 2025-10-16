@@ -8,3 +8,22 @@ releases/
 cmake-build-debug
 cmake-build-debug/
 cmake-build-release
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# VS Code specific
+*.vc.db
+*.vc.db-shm
+*.vc.db-wal
+*.opendb
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vscode/browse.vc.db
