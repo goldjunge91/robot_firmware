@@ -27,3 +27,5 @@ cmake-build-release
 *.userosscache
 *.sln.docstates
 .vscode/browse.vc.db
+pico-examples
+raspberrypi pico-examples master
