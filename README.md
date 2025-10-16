@@ -1,5 +1,9 @@
 # my_steel Robot Firmware
 
+[![Build Firmware](https://github.com/goldjunge91/robot_firmware/actions/workflows/build.yml/badge.svg)](https://github.com/goldjunge91/robot_firmware/actions/workflows/build.yml)
+[![Run Tests](https://github.com/goldjunge91/robot_firmware/actions/workflows/test.yml/badge.svg)](https://github.com/goldjunge91/robot_firmware/actions/workflows/test.yml)
+[![Create Release](https://github.com/goldjunge91/robot_firmware/actions/workflows/firmware_release.yml/badge.svg)](https://github.com/goldjunge91/robot_firmware/actions/workflows/firmware_release.yml)
+
 Raspberry Pi Pico firmware for the my_steel robot, implementing motor control, sensor integration, and micro-ROS communication.
 
 ## Recent Modernization (2025)
