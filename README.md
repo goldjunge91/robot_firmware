@@ -53,7 +53,7 @@ The firmware uses a modular agent-based architecture built on FreeRTOS:
 - **uRosBridge**: Singleton managing micro-ROS communication over USB
 - **TB6612MotorsAgent**: PID-controlled motor management with encoder feedback for 4 mecanum wheels
 - **ImuAgent**: IMU (ICM20948) data acquisition via SPI
-- **DDD**: Main robot control agent handling odometry, cmd_vel, and mecanum kinematics
+- **RobotController**: Main robot control agent handling odometry, cmd_vel, and mecanum kinematics
 - **BlinkAgent**: LED status indicator
 
 ### Removed Components
@@ -114,18 +114,7 @@ make build_release
 make clean
 ```
 
-### Using Just (from workspace root)
 
-```bash
-# Build firmware
-just build-firmware
-
-# Build release version
-just build-firmware-release
-
-# Flash to Pico
-just flash-firmware
-```
 
 ## Flashing
 
@@ -152,25 +141,47 @@ picotool load -f build/src/my_firmware.uf2
 picotool reboot
 ```
 
-## Testing & Debugging
+## Testing
+
+### Unit Tests
+
+Run the test suite locally:
+
+```bash
+# Build and run all tests
+make test
+
+# Run with verbose output
+make test-verbose
+
+# Run specific test suites
+make test-pid        # Motor PID tests
+make test-odometry   # Odometry tests
+make test-math       # Math utility tests
+```
+
+The test suite includes:
+- **Unit Tests**: Motor PID, TB6612 driver, math utilities
+- **Integration Tests**: Mecanum kinematics, odometry, ROS topic names
+- **HAL Tests**: Hardware abstraction layer mocks
+
+All 70 tests should pass before committing changes.
+
+## Debugging
 
 ### Monitor Debug Output
 
 ```bash
 # Monitor UART debug output
-just monitor-firmware
-
-# Or manually
 screen /dev/ttyAMA0 115200
+# or
+minicom -D /dev/ttyAMA0 -b 115200
 ```
 
 ### Test micro-ROS Connection
 
 ```bash
-# Comprehensive connection test
-just test-firmware
-
-# Manual micro-ROS agent
+# Start micro-ROS agent
 ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyACM0 -b 115200 -v
 ```
 
@@ -378,12 +389,12 @@ The modernized codebase follows these standards:
 2. Implement hardware initialization in constructor
 3. Add configuration constants to `src/config/FirmwareConfig.h`
 4. Add to main task initialization in `main.cpp`
-5. Register with `DDD` agent for ROS integration if needed
+5. Register with `RobotController` agent for ROS integration if needed
 6. Add comprehensive Doxygen documentation
 
 ### Modifying ROS Interface
 
-1. Edit `DDD.h` and `DDD.cpp` for new topics
+1. Edit `RobotController.h` and `RobotController.cpp` for new topics
 2. Update entity counts in `getCount()` and `getHandles()`
 3. Add publishers/subscribers in `createEntities()`
 4. Handle messages in `handleSubscriptionMsg()`
@@ -461,38 +472,47 @@ The modernization maintains or improves performance:
 
 
 
-## Release Process
+## CI/CD Workflows
 
-### Quick Release
+### Automatic Build Checks
+
+Every push to any branch triggers a build workflow that:
+- ✅ Verifies firmware builds successfully
+- ✅ Generates checksums and size information
+- ✅ Uploads build artifacts (retained for 30 days)
+- ✅ Shows build summary in GitHub Actions
+
+This ensures code changes don't break the build.
+
+### Creating Releases
+
+Releases are created **manually** when you're ready:
+
+1. Go to GitHub Actions → "Create Release" workflow
+2. Click "Run workflow"
+3. Enter version (e.g., `v1.0.0`)
+4. Click "Run workflow"
+
+The workflow will:
+- ✅ Build firmware
+- ✅ Create git tag
+- ✅ Generate all artifacts with German date format (dd.mm.yyyy)
+- ✅ Create GitHub Release with:
+  - `my_firmware.uf2` (flashable binary)
+  - `my_firmware.elf` (debug symbols)
+  - `my_firmware.uf2.sha256` (checksum)
+  - `my_firmware.elf.sha256` (checksum)
+  - `firmware_size.txt` (memory usage)
+  - `build_info.txt` (complete build information)
+
+### Local Release Build
 
 ```bash
-./create_release.sh v1.0.0
-```
-
-This script automatically:
-1. ✅ Builds release version
-2. ✅ Creates `.uf2` in `releases/`
-3. ✅ Creates Git tag
-4. ✅ Pushes tag to GitHub
-5. ✅ Creates GitHub Release (with `gh` CLI)
-
-### Manual Release
-
-#### 1. Build Release
-```bash
+# Build release version locally
 make release VERSION=v1.0.0
 ```
 
-#### 2. Create Git Tag
-```bash
-git tag -a v1.0.0 -m "Release v1.0.0"
-git push origin v1.0.0
-```
-
-#### 3. Create GitHub Release
-- Go to: https://github.com/goldjunge91/robot_firmware/releases/new
-- Tag: `v1.0.0`
-- Upload: `releases/my_firmware_v1.0.0.uf2`
+This creates `releases/my_firmware_v1.0.0.uf2` locally.
 
 ### Versioning
 
@@ -501,17 +521,5 @@ git push origin v1.0.0
 - `v1.0.0` - First stable release
 - `v1.1.0` - New features
 - `v1.1.1` - Bugfixes
-
-### GitHub CLI (Optional)
-
-```bash
-# Ubuntu/Debian
-sudo apt install gh
-
-# Login
-gh auth login
-```
-
-With `gh` CLI, releases are automatically uploaded!
 
 **Note:** Binary files (.uf2) should NOT be committed to the repository. They are uploaded to GitHub Releases instead.
