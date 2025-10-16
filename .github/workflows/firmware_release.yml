@@ -40,20 +40,24 @@ jobs:
         id: get-commit-sha
         run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Get version bump from commit message (for pushes to main)
-        id: get-bump-commit
-        if: github.event_name == 'push'
-        uses: husarion-ci/action-get-version-bump@v0.3.0
-        with:
-          commit_message: ${{ github.event.head_commit.message }}
-
-      - name: Set version bump output
+      - name: Get version bump from commit message (for pushes)
         id: get-bump
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "bump=${{ github.event.inputs.bump }}" >> $GITHUB_OUTPUT
           else
-            echo "bump=${{ steps.get-bump-commit.outputs.bump }}" >> $GITHUB_OUTPUT
+            # Parse commit message for version bump keywords
+            COMMIT_MSG="${{ github.event.head_commit.message }}"
+            if echo "$COMMIT_MSG" | grep -qiE '\[major\]|breaking change|BREAKING CHANGE'; then
+              echo "bump=major" >> $GITHUB_OUTPUT
+            elif echo "$COMMIT_MSG" | grep -qiE '\[minor\]|feat:|feature:'; then
+              echo "bump=minor" >> $GITHUB_OUTPUT
+            elif echo "$COMMIT_MSG" | grep -qiE '\[patch\]|fix:|bugfix:|chore:|docs:|ci:'; then
+              echo "bump=patch" >> $GITHUB_OUTPUT
+            else
+              # Default to patch for any other commit
+              echo "bump=patch" >> $GITHUB_OUTPUT
+            fi
           fi
 
   # Job 2: Build and create release (only if version bump is needed)
