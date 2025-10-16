@@ -60,7 +60,7 @@ The firmware uses a modular agent-based architecture built on FreeRTOS:
 
 The following sensors have been removed as part of the modernization:
 - **HCSR04Agent**: Ultrasonic distance sensor (removed in 2025)
-- **Vl6180xAgent**: Time-of-Flight sensor (optional, can be removed if not needed)
+- **distance_sensor library**: PIO-based distance sensor support (removed)
 
 ## Hardware Configuration
 
@@ -287,8 +287,9 @@ config::pid::kProportional
 
 ### Removed Features
 
-- **HCSR04 ultrasonic sensor**: Completely removed. If you need distance sensing, consider adding VL6180X or similar ToF sensor.
-- **Range topics**: `/range_front` and `/range_back` topics no longer published.
+- **HCSR04 ultrasonic sensor**: Completely removed including distance_sensor library
+- **Range topics**: `/range_front` and `/range_back` topics no longer published
+- **distance_sensor.cmake**: Removed as it's no longer needed
 
 ### Build System Changes
 
@@ -345,7 +346,7 @@ See `INTEGRATION_TEST_SUMMARY.md` for detailed testing procedures.
 6. **Missing sensor topics after update**
    - HCSR04 ultrasonic sensor has been removed (expected behavior)
    - Check that expected topics are `/joint_states`, `/imu/data_raw`, `/odometry/wheels`
-   - VL6180X ToF sensor may be optionally removed depending on configuration
+   - VL6180X ToF sensor is optional and can be disabled if not needed
 
 ### Debug Logging
 
@@ -447,10 +448,10 @@ The modernization maintains or improves performance:
 
 ## Dependencies
 
-- **FreeRTOS**: Real-time task scheduling
-- **micro-ROS**: ROS2 communication over USB
-- **Pico SDK**: Hardware abstraction
-- **Eigen**: Linear algebra for odometry calculations
+- **FreeRTOS**: Real-time task scheduling (v10.6.2)
+- **micro-ROS**: ROS2 communication over USB (humble branch)
+- **Pico SDK**: Hardware abstraction (v1.5.1)
+- **Eigen**: Linear algebra for odometry calculations (v3.4.0)
 
 
 
@@ -460,54 +461,48 @@ The modernization maintains or improves performance:
 
 
 
-# Firmware Release Process
+## Release Process
 
-## 🚀 Schneller Release
+### Quick Release
 
 ```bash
 ./create_release.sh v1.0.0
 ```
 
-Das Script macht automatisch:
-1. ✅ Build Release-Version
-2. ✅ Erstellt `.uf2` in `releases/`
-3. ✅ Erstellt Git Tag
-4. ✅ Pusht Tag zu GitHub
-5. ✅ Erstellt GitHub Release (mit `gh` CLI)
+This script automatically:
+1. ✅ Builds release version
+2. ✅ Creates `.uf2` in `releases/`
+3. ✅ Creates Git tag
+4. ✅ Pushes tag to GitHub
+5. ✅ Creates GitHub Release (with `gh` CLI)
 
----
+### Manual Release
 
-## 📦 Manueller Release
-
-### 1. Build Release
+#### 1. Build Release
 ```bash
 make release VERSION=v1.0.0
 ```
 
-### 2. Git Tag erstellen
+#### 2. Create Git Tag
 ```bash
 git tag -a v1.0.0 -m "Release v1.0.0"
 git push origin v1.0.0
 ```
 
-### 3. GitHub Release erstellen
-- Gehe zu: https://github.com/goldjunge91/my_steel-robot_ws/releases/new
+#### 3. Create GitHub Release
+- Go to: https://github.com/goldjunge91/robot_firmware/releases/new
 - Tag: `v1.0.0`
 - Upload: `releases/my_firmware_v1.0.0.uf2`
 
----
-
-## 📋 Versioning
+### Versioning
 
 **Format:** `vMAJOR.MINOR.PATCH`
 
-- `v1.0.0` - Erster stabiler Release
-- `v1.1.0` - Neue Features
+- `v1.0.0` - First stable release
+- `v1.1.0` - New features
 - `v1.1.1` - Bugfixes
 
----
-
-## 🛠️ GitHub CLI installieren (optional)
+### GitHub CLI (Optional)
 
 ```bash
 # Ubuntu/Debian
@@ -517,10 +512,6 @@ sudo apt install gh
 gh auth login
 ```
 
-Mit `gh` CLI wird der Release automatisch hochgeladen!
+With `gh` CLI, releases are automatically uploaded!
 
----
-
-## 📁 Warum nicht in Git?
-
-**Binaries (.uf2) gehören NICHT ins Repository!**
+**Note:** Binary files (.uf2) should NOT be committed to the repository. They are uploaded to GitHub Releases instead.
