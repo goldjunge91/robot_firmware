@@ -1,0 +1,85 @@
+name: Build Firmware
+
+# Trigger on every push except main (main triggers release)
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore: [ "main" ]
+  pull_request:
+    branches: [ "main", "tb6612_fw" ]
+
+env:
+  PICO_SDK_PATH: ~/pico/pico-sdk
+  SDK_VERSION: 1.5.1
+
+jobs:
+  build:
+    name: Build Firmware
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Cache Pico SDK
+        id: cache-pico-sdk
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.PICO_SDK_PATH }}
+          key: ${{ runner.os }}-pico-sdk-${{ env.SDK_VERSION }}
+
+      - name: Setup ARM toolchain
+        run: |
+          sudo apt update
+          sudo apt install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
+
+      - name: Setup Pico SDK
+        if: steps.cache-pico-sdk.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p $(dirname ${{ env.PICO_SDK_PATH }})
+          git clone https://github.com/raspberrypi/pico-sdk.git --depth 1 --branch ${{ env.SDK_VERSION }} ${{ env.PICO_SDK_PATH }}
+          cd ${{ env.PICO_SDK_PATH }}
+          git submodule update --init
+
+      - name: Build firmware
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          make -j$(nproc)
+
+      - name: Generate build artifacts
+        run: |
+          cd build
+          sha256sum src/my_firmware.uf2 > my_firmware.uf2.sha256
+          sha256sum src/my_firmware.elf > my_firmware.elf.sha256
+          arm-none-eabi-size src/my_firmware.elf > firmware_size.txt
+          echo "Build Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" > build_info.txt
+          echo "Commit: ${{ github.sha }}" >> build_info.txt
+          echo "Branch: ${{ github.ref_name }}" >> build_info.txt
+
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ github.sha }}
+          path: |
+            build/src/my_firmware.uf2
+            build/src/my_firmware.elf
+            build/*.sha256
+            build/firmware_size.txt
+            build/build_info.txt
+          retention-days: 30
+
+      - name: Build summary
+        run: |
+          echo "### Build Summary ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### Firmware Files" >> $GITHUB_STEP_SUMMARY
+          ls -lh build/src/my_firmware.* >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### Firmware Size" >> $GITHUB_STEP_SUMMARY
+          cat build/firmware_size.txt >> $GITHUB_STEP_SUMMARY

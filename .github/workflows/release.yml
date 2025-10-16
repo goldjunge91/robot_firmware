@@ -1,4 +1,4 @@
-name: Firmware Release
+name: Release Firmware
 
 # Trigger:
 # 1. workflow_dispatch: Manual trigger with version bump selection
@@ -23,7 +23,7 @@ env:
   SDK_VERSION: 1.5.1
 
 jobs:
-  # Job 1: Ermittelt, ob und wie die Version erhöht werden soll
+  # Job 1: Determine version bump
   determine-version:
     name: Determine Version Bump
     runs-on: ubuntu-latest
@@ -34,7 +34,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Notwendig für die Analyse der Commit-Historie
+          fetch-depth: 0
 
       - name: Get commit SHA
         id: get-commit-sha
@@ -73,7 +73,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive  # Initialize FreeRTOS, micro-ROS, Eigen
+          submodules: recursive
 
       - name: Get latest SemVer tag
         id: get-latest-tag
@@ -162,6 +162,13 @@ jobs:
             1. Download `my_firmware.uf2`
             2. Hold BOOTSEL button on Pico while connecting USB
             3. Drag and drop the .uf2 file to the RPI-RP2 drive
+            
+            ### Files
+            - `my_firmware.uf2` - Flashable firmware binary
+            - `my_firmware.elf` - Debug symbols
+            - `*.sha256` - Checksums for verification
+            - `firmware_size.txt` - Memory usage information
+            - `build_info.txt` - Build metadata
             
             ### Changes
             See commit history for details.

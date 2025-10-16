@@ -1,7 +1,7 @@
 .cache
-build
-build_release
-build*
+build/
+build_release/
+build_tests/
 
 # Ignore all releases (uploaded to GitHub Releases instead)
 releases/

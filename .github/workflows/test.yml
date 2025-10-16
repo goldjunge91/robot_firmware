@@ -1,0 +1,69 @@
+name: Unit Tests
+
+# Trigger on every push and PR
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "main", "tb6612_fw" ]
+
+jobs:
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup test dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y cmake build-essential libgtest-dev libeigen3-dev
+
+      - name: Build unit tests
+        run: |
+          mkdir -p tests/build
+          cd tests/build
+          cmake ..
+          make -j$(nproc)
+
+      - name: Run unit tests with CTest
+        run: |
+          cd tests/build
+          ctest --output-on-failure --verbose
+
+      - name: Generate test report
+        if: always()
+        run: |
+          cd tests/build
+          echo "### Test Results" > test_summary.txt
+          echo "" >> test_summary.txt
+          echo "**Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> test_summary.txt
+          echo "**Commit:** ${{ github.sha }}" >> test_summary.txt
+          echo "**Branch:** ${{ github.ref_name }}" >> test_summary.txt
+          echo "" >> test_summary.txt
+          ctest --output-on-failure 2>&1 | tee -a test_summary.txt || true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.sha }}
+          path: |
+            tests/build/test_summary.txt
+            tests/build/Testing/
+          retention-days: 30
+
+      - name: Test summary
+        if: always()
+        run: |
+          echo "### Unit Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f tests/build/test_summary.txt ]; then
+            cat tests/build/test_summary.txt >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Test results not available" >> $GITHUB_STEP_SUMMARY
+          fi
