@@ -34,9 +34,18 @@ jobs:
           make -j$(nproc)
 
       - name: Run tests
+        id: run_tests
         run: |
           cd tests/build
-          ./Firmware_gTests_run --gtest_output=xml:test_results.xml
+          ./Firmware_gTests_run --gtest_output=xml:test_results.xml 2>&1 | tee test_output.log
+          
+          # Extract summary from output
+          TOTAL=$(grep -oP '\[\s*PASSED\s*\]\s*\K\d+' test_output.log || echo "0")
+          SUITES=$(grep -oP 'Running \K\d+(?= tests from \d+ test suites)' test_output.log || echo "0")
+          TEST_SUITES=$(grep -oP 'Running \d+ tests from \K\d+(?= test suites)' test_output.log || echo "0")
+          
+          echo "total_tests=$TOTAL" >> $GITHUB_OUTPUT
+          echo "test_suites=$TEST_SUITES" >> $GITHUB_OUTPUT
 
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action@v2
@@ -44,14 +53,47 @@ jobs:
         with:
           files: tests/build/test_results.xml
           check_name: Unit Test Results
+          comment_mode: off
 
       - name: Test summary
         if: always()
         run: |
-          echo "### Test Results 🧪" >> $GITHUB_STEP_SUMMARY
+          echo "### 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          
           if [ -f tests/build/test_results.xml ]; then
-            echo "Test results generated successfully" >> $GITHUB_STEP_SUMMARY
+            # Parse XML for detailed results
+            TOTAL=$(grep -oP 'tests="\K\d+' tests/build/test_results.xml | head -1)
+            FAILURES=$(grep -oP 'failures="\K\d+' tests/build/test_results.xml | head -1)
+            ERRORS=$(grep -oP 'errors="\K\d+' tests/build/test_results.xml | head -1)
+            SUITES=$(grep -oP '<testsuite' tests/build/test_results.xml | wc -l)
+            
+            if [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then
+              echo "✅ **All tests passed!**" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ **Some tests failed**" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Total Tests | $TOTAL |" >> $GITHUB_STEP_SUMMARY
+            echo "| Test Suites | $SUITES |" >> $GITHUB_STEP_SUMMARY
+            echo "| Passed | $((TOTAL - FAILURES - ERRORS)) |" >> $GITHUB_STEP_SUMMARY
+            echo "| Failed | $FAILURES |" >> $GITHUB_STEP_SUMMARY
+            echo "| Errors | $ERRORS |" >> $GITHUB_STEP_SUMMARY
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Test Suites:**" >> $GITHUB_STEP_SUMMARY
+            echo "- I2C Mock Tests" >> $GITHUB_STEP_SUMMARY
+            echo "- GPIO Mock Tests" >> $GITHUB_STEP_SUMMARY
+            echo "- Motor PID Tests" >> $GITHUB_STEP_SUMMARY
+            echo "- TB6612 Motor Driver Tests" >> $GITHUB_STEP_SUMMARY
+            echo "- Math Utilities Tests" >> $GITHUB_STEP_SUMMARY
+            echo "- Mecanum Kinematics Tests" >> $GITHUB_STEP_SUMMARY
+            echo "- Odometry Tests" >> $GITHUB_STEP_SUMMARY
+            echo "- ROS Topic Name Tests" >> $GITHUB_STEP_SUMMARY
+            echo "- Parameterized Kinematics Tests" >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ Test results file not found" >> $GITHUB_STEP_SUMMARY
           fi
