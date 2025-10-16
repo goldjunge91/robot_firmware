@@ -101,7 +101,7 @@ jobs:
           path: ${{ env.PICO_SDK_PATH }}
           key: ${{ runner.os }}-pico-sdk-${{ env.SDK_VERSION }}
 
-      - name: Setup ARM toolchain
+      - name: Setup ARM toolchain and build dependencies
         run: |
           sudo apt update
           sudo apt install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
@@ -121,6 +121,32 @@ jobs:
           cmake ..
           make -j$(nproc)
 
+      - name: Generate build artifacts
+        run: |
+          cd build
+          # Generate checksums
+          sha256sum src/my_firmware.uf2 > my_firmware.uf2.sha256
+          sha256sum src/my_firmware.elf > my_firmware.elf.sha256
+          # Get firmware size info
+          arm-none-eabi-size src/my_firmware.elf > firmware_size.txt
+          # Create build info
+          echo "Build Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" > build_info.txt
+          echo "Commit: ${{ github.sha }}" >> build_info.txt
+          echo "Version: ${{ steps.bump-semver.outputs.new_version }}" >> build_info.txt
+          echo "Branch: ${{ github.ref_name }}" >> build_info.txt
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ steps.bump-semver.outputs.new_version }}
+          path: |
+            build/src/my_firmware.uf2
+            build/src/my_firmware.elf
+            build/*.sha256
+            build/firmware_size.txt
+            build/build_info.txt
+          retention-days: 90
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -139,6 +165,11 @@ jobs:
             
             ### Changes
             See commit history for details.
-          files: build/src/my_firmware.uf2
+          files: |
+            build/src/my_firmware.uf2
+            build/src/my_firmware.elf
+            build/*.sha256
+            build/firmware_size.txt
+            build/build_info.txt
           draft: false
           prerelease: false
