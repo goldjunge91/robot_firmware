@@ -40,13 +40,13 @@ add_definitions(-DUNIT_TEST -DPICO_PLATFORM=host)
 # ==============================================================================
 set(TEST_SOURCE_FILES
     tests1.cpp
-    test_motor_pid.cpp
-    test_tb6612_motor_pid.cpp
-    test_basic_math.cpp
     test_hal_mocks.cpp
-    test_mecanum_kinematics.cpp
-    test_odometry.cpp
-    test_topic_names.cpp
+    unit/test_motor_pid.cpp
+    unit/test_tb6612_motor_pid.cpp
+    unit/test_basic_math.cpp
+    integration/test_mecanum_kinematics.cpp
+    integration/test_odometry.cpp
+    integration/test_topic_names.cpp
 )
 
 set(MOCK_FILES
@@ -57,8 +57,8 @@ set(MOCK_FILES
 )
 
 set(FIRMWARE_FILES
-    ../src/MotorPID.cpp
-    ../src/TB6612MotorPID.cpp
+    ../src/hal/hardware/motor_driver/MotorPID.cpp
+    ../src/hal/hardware/motor_driver/TB6612MotorPID.cpp
 )
 
 # ==============================================================================

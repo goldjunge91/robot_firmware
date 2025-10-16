@@ -69,7 +69,7 @@ test:
 	@echo "\n========================================"
 	@echo "  Running Firmware Unit Tests"
 	@echo "========================================"
-	@cd tests/build && ./firmware_tests
+	@cd tests/build && ./Firmware_gTests_run
 
 # Test with verbose output
 test-verbose:
@@ -79,7 +79,7 @@ test-verbose:
 	@echo "\n========================================"
 	@echo "  Running Firmware Unit Tests (Verbose)"
 	@echo "========================================"
-	@cd tests/build && ./firmware_tests --gtest_color=yes --gtest_print_time=1
+	@cd tests/build && ./Firmware_gTests_run --gtest_color=yes --gtest_print_time=1
 
 # Test with CTest
 test-ctest:
@@ -90,13 +90,13 @@ test-ctest:
 
 # Run specific test suite
 test-pid:
-	@cd tests/build && ./firmware_tests --gtest_filter=MotorPIDTest.*
+	@cd tests/build && ./Firmware_gTests_run --gtest_filter=MotorPIDTest.*
 
 test-odometry:
-	@cd tests/build && ./firmware_tests --gtest_filter=OdometryTest.*
+	@cd tests/build && ./Firmware_gTests_run --gtest_filter=OdometryTest.*
 
 test-math:
-	@cd tests/build && ./firmware_tests --gtest_filter=MathUtilsTest.*
+	@cd tests/build && ./Firmware_gTests_run --gtest_filter=MathUtilsTest.*
 
 # Flash: UF2-Datei auf Raspberry Pi Pico laden
 flash: build
