@@ -81,43 +81,45 @@ sequenceDiagram
 
 ### Pin Mapping
 
-| Component | Pin | Function | Notes |
-|-----------|-----|----------|-------|
+> **Configuration:** All pin assignments defined in [`src/config/FirmwareConfig.h`](src/config/FirmwareConfig.h)
+
+| Component | Pin | Config Constant | Function | Notes |
+|-----------|-----|-----------------|----------|-------|
 | **Motor 0 (Front Left)** |
-| IN1 | GP2 | Direction control | TB6612 driver |
-| IN2 | GP3 | Direction control | TB6612 driver |
-| PWM | GP4 | Speed control | 20kHz PWM |
-| Encoder A | GP5 | Quadrature encoder | Interrupt-driven |
-| Encoder B | GP6 | Quadrature encoder | Interrupt-driven |
+| IN1 | GP2 | `config::pins::kMotor0In1` | Direction control | TB6612 driver |
+| IN2 | GP3 | `config::pins::kMotor0In2` | Direction control | TB6612 driver |
+| PWM | GP4 | `config::pins::kMotor0Pwm` | Speed control | 20kHz PWM |
+| Encoder A | GP5 | `config::pins::kMotor0EncA` | Quadrature encoder | Interrupt-driven |
+| Encoder B | GP6 | `config::pins::kMotor0EncB` | Quadrature encoder | Interrupt-driven |
 | **Motor 1 (Front Right)** |
-| IN1 | GP7 | Direction control | TB6612 driver |
-| IN2 | GP8 | Direction control | TB6612 driver |
-| PWM | GP9 | Speed control | 20kHz PWM |
-| Encoder A | GP10 | Quadrature encoder | Interrupt-driven |
-| Encoder B | GP11 | Quadrature encoder | Interrupt-driven |
+| IN1 | GP7 | `config::pins::kMotor1In1` | Direction control | TB6612 driver |
+| IN2 | GP8 | `config::pins::kMotor1In2` | Direction control | TB6612 driver |
+| PWM | GP9 | `config::pins::kMotor1Pwm` | Speed control | 20kHz PWM |
+| Encoder A | GP10 | `config::pins::kMotor1EncA` | Quadrature encoder | Interrupt-driven |
+| Encoder B | GP11 | `config::pins::kMotor1EncB` | Quadrature encoder | Interrupt-driven |
 | **Motor 2 (Rear Left)** |
-| IN1 | GP12 | Direction control | TB6612 driver |
-| IN2 | GP13 | Direction control | TB6612 driver |
-| PWM | GP14 | Speed control | 20kHz PWM |
-| Encoder A | GP15 | Quadrature encoder | Interrupt-driven |
-| Encoder B | GP20 | Quadrature encoder | Interrupt-driven |
+| IN1 | GP12 | `config::pins::kMotor2In1` | Direction control | TB6612 driver |
+| IN2 | GP13 | `config::pins::kMotor2In2` | Direction control | TB6612 driver |
+| PWM | GP14 | `config::pins::kMotor2Pwm` | Speed control | 20kHz PWM |
+| Encoder A | GP15 | `config::pins::kMotor2EncA` | Quadrature encoder | Interrupt-driven |
+| Encoder B | GP20 | `config::pins::kMotor2EncB` | Quadrature encoder | Interrupt-driven |
 | **Motor 3 (Rear Right)** |
-| IN1 | GP21 | Direction control | TB6612 driver |
-| IN2 | GP22 | Direction control | TB6612 driver |
-| PWM | GP23 | Speed control | 20kHz PWM |
-| Encoder A | GP24 | Quadrature encoder | Interrupt-driven |
-| Encoder B | GP26 | Quadrature encoder | Interrupt-driven |
+| IN1 | GP21 | `config::pins::kMotor3In1` | Direction control | TB6612 driver |
+| IN2 | GP22 | `config::pins::kMotor3In2` | Direction control | TB6612 driver |
+| PWM | GP23 | `config::pins::kMotor3Pwm` | Speed control | 20kHz PWM |
+| Encoder A | GP24 | `config::pins::kMotor3EncA` | Quadrature encoder | Interrupt-driven |
+| Encoder B | GP26 | `config::pins::kMotor3EncB` | Quadrature encoder | Interrupt-driven |
 | **IMU (ICM-20948)** |
-| MISO | GP16 | SPI data in | SPI0 @ 1MHz |
-| CS | GP17 | Chip select | Active low |
-| SCK | GP18 | SPI clock | SPI0 |
-| MOSI | GP19 | SPI data out | SPI0 |
+| MISO | GP16 | `config::pins::kImuMiso` | SPI data in | SPI0 @ 1MHz |
+| CS | GP17 | `config::pins::kImuCs` | Chip select | Active low |
+| SCK | GP18 | `config::pins::kImuSck` | SPI clock | SPI0 |
+| MOSI | GP19 | `config::pins::kImuMosi` | SPI data out | SPI0 |
 | **Debug** |
-| TX | GP0 | UART transmit | 115200 baud |
-| RX | GP1 | UART receive | 115200 baud |
+| TX | GP0 | `config::pins::kUart0Tx` | UART transmit | 115200 baud |
+| RX | GP1 | `config::pins::kUart0Rx` | UART receive | 115200 baud |
 | **Status LEDs** |
-| Blink | GP25 | Onboard LED | Heartbeat |
-| Connection | GP26 | External LED | micro-ROS status |
+| Blink | GP25 | `config::pins::kBlinkLed` | Onboard LED | Heartbeat |
+| Connection | GP26 | `config::pins::kConnectionLed` | External LED | micro-ROS status |
 
 **Communication:**
 - USB: micro-ROS (ROS2)
