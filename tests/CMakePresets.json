@@ -1,0 +1,27 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 13,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "tests-debug",
+      "displayName": "Unit Tests",
+      "description": "Unit tests with GoogleTest (host compiler)",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "tests-debug",
+      "configurePreset": "tests-debug",
+      "jobs": 6
+    }
+  ]
+}

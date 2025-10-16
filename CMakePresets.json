@@ -1,0 +1,122 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 13,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "pico-debug",
+      "displayName": "Pico Debug",
+      "description": "Debug build for Raspberry Pi Pico (cross-compile)",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "PICO_SDK_PATH": "/Users/marco/pico-sdk",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "BUILD_TESTS": "OFF"
+      }
+    },
+    {
+      "name": "pico-release",
+      "displayName": "Pico Release",
+      "description": "Release build for Raspberry Pi Pico (cross-compile)",
+      "binaryDir": "${sourceDir}/build_release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "PICO_SDK_PATH": "/Users/marco/pico-sdk",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "BUILD_TESTS": "OFF"
+      }
+    },
+    {
+      "name": "tests-debug",
+      "displayName": "Unit Tests (Debug)",
+      "description": "Host-based unit tests with GoogleTest (Debug build)",
+      "binaryDir": "${sourceDir}/build_tests",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_TESTS": "ON",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "PICO_SDK_PATH": ""
+      },
+      "environment": {
+        "PICO_SDK_PATH": ""
+      }
+    },
+    {
+      "name": "tests-release",
+      "displayName": "Unit Tests (Release)",
+      "description": "Host-based unit tests with GoogleTest (Release build)",
+      "binaryDir": "${sourceDir}/build_tests_release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_TESTS": "ON",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "PICO_SDK_PATH": ""
+      },
+      "environment": {
+        "PICO_SDK_PATH": ""
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "pico-debug",
+      "configurePreset": "pico-debug",
+      "jobs": 6
+    },
+    {
+      "name": "pico-release",
+      "configurePreset": "pico-release",
+      "jobs": 6
+    },
+    {
+      "name": "tests-debug",
+      "configurePreset": "tests-debug",
+      "jobs": 8
+    },
+    {
+      "name": "tests-release",
+      "configurePreset": "tests-release",
+      "jobs": 8
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "tests-all",
+      "configurePreset": "tests-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "tests-unit",
+      "configurePreset": "tests-debug",
+      "filter": {
+        "include": {
+          "label": "unit"
+        }
+      }
+    },
+    {
+      "name": "tests-integration",
+      "configurePreset": "tests-debug",
+      "filter": {
+        "include": {
+          "label": "integration"
+        }
+      }
+    },
+    {
+      "name": "tests-hal",
+      "configurePreset": "tests-debug",
+      "filter": {
+        "include": {
+          "label": "hal"
+        }
+      }
+    }
+  ]
+}
