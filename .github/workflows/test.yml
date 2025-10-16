@@ -1,0 +1,53 @@
+name: Run Tests
+
+# Run tests on every push and PR to ensure code quality
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup build tools
+        run: |
+          sudo apt update
+          sudo apt install -y cmake build-essential
+
+      - name: Build tests
+        run: |
+          mkdir -p tests/build
+          cd tests/build
+          cmake ..
+          make -j$(nproc)
+
+      - name: Run tests
+        run: |
+          cd tests/build
+          ./Firmware_gTests_run --gtest_output=xml:test_results.xml
+
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: tests/build/test_results.xml
+          check_name: Unit Test Results
+
+      - name: Test summary
+        if: always()
+        run: |
+          echo "### Test Results 🧪" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f tests/build/test_results.xml ]; then
+            echo "Test results generated successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Test results file not found" >> $GITHUB_STEP_SUMMARY
+          fi
