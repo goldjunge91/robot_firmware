@@ -9,15 +9,13 @@
 #include "pico/stdio/driver.h"
 #include "pico/stdio_usb.h"
 #include "pico/stdlib.h"
-#include "pico_usb_transports.hpp"
+#include "pico_usb_transports.h"
 #include "task.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
 #include <uxr/client/profile/transport/custom/custom_transport.h>
-
-extern "C" {
 
 /***
  * Sleep via FreeRTOS sleep
@@ -84,9 +82,7 @@ pico_usb_transport_write(struct uxrCustomTransport *transport,
                          const uint8_t *buf,
                          size_t len,
                          uint8_t *errcode) {
-    // C++ requires explicit cast from uint8_t* to char*
-    // stdio_usb.out_chars(buf, len);  // Original C code
-    stdio_usb.out_chars(reinterpret_cast<const char*>(buf), len);
+    stdio_usb.out_chars(buf, len);
     return len;
 }
 
@@ -106,9 +102,7 @@ pico_usb_transport_read(
 
     size_t read = 0;
     while(time_us_64() < until_time_us) {
-        // C++ requires explicit cast from uint8_t* to char*
-        // read = stdio_usb.in_chars(buf, len);  // Original C code
-        read = stdio_usb.in_chars(reinterpret_cast<char*>(buf), len);
+        read = stdio_usb.in_chars(buf, len);
         if(read != 0) {
             vTaskDelay(1);
             return read;
@@ -119,8 +113,6 @@ pico_usb_transport_read(
 
     return 0;
 }
-
-} // extern "C"
 
 #define DEBUG_LINE 30
 

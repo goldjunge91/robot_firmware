@@ -24,6 +24,9 @@ extern "C" {
 #include "pico/stdio/driver.h"
 #include "pico/stdio_uart.h"
 #include "pico/stdio_usb.h"
+// UART Transport (simple, but may have issues):
+// #include "pico_uart_transports.h"
+// USB Transport (recommended for micro-ROS):
 #include "pico_usb_transports.hpp"
 
 #include <rcl/error_handling.h>

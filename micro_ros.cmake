@@ -6,9 +6,11 @@ else ()
 endif ()
 
 add_library(micro_ros STATIC)
-#target_sources(micro_ros PUBLIC
-   # ${MICRO_ROS_PATH}/pico_uart_transport.c
-#)
+# Note: We use our own transport implementations from src/ folder
+# Not using the submodule transport files:
+# target_sources(micro_ros PUBLIC
+#     ${MICRO_ROS_PATH}/pico_uart_transport.c
+# )
 
 # Add include directory
 target_include_directories(micro_ros PUBLIC 

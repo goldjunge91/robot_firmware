@@ -12,10 +12,6 @@
 #include <time.h>
 #include <uxr/client/profile/transport/custom/custom_transport.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 bool
 pico_usb_transport_open(struct uxrCustomTransport* transport);
 bool
@@ -31,9 +27,4 @@ pico_usb_transport_read(
 
 int
 clock_gettime(clockid_t unused, struct timespec* tp);
-
-#ifdef __cplusplus
-}
-#endif
-
 #endif  // PICO_USB_TRANS

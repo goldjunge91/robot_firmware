@@ -330,9 +330,13 @@ void uRosBridge::uRosInit()
     uart_log("Error on default allocators (line %d)\r\n", __LINE__);
     return;
   }
-
+  // Using USB transport (recommended for micro-ROS over USB CDC)
   rmw_uros_set_custom_transport(true, NULL, pico_usb_transport_open, pico_usb_transport_close, pico_usb_transport_write,
                                 pico_usb_transport_read);
+  
+  // Alternative: UART/Serial transport (uncomment if needed)
+  // rmw_uros_set_custom_transport(true, NULL, pico_serial_transport_open, pico_serial_transport_close, pico_serial_transport_write,
+  //                               pico_serial_transport_read);
 }
 
 /***
