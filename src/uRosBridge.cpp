@@ -126,7 +126,7 @@ void uRosBridge::run()
     if (state != last_state)
     {
       const char* state_names[] = { "WAITING_AGENT", "AGENT_AVAILABLE", "AGENT_CONNECTED", "AGENT_DISCONNECTED" };
-      uart_log("\n[STATE] 🔄 %s -> %s\n\n", state_names[last_state], state_names[state]);
+      uart_log("\n[STATE] %s -> %s\n\n", state_names[last_state], state_names[state]);
       last_state = state;
     }
 

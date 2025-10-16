@@ -24,7 +24,7 @@ extern "C" {
 #include "pico/stdio/driver.h"
 #include "pico/stdio_uart.h"
 #include "pico/stdio_usb.h"
-#include "pico_usb_transports.h"
+#include "pico_usb_transports.hpp"
 
 #include <rcl/error_handling.h>
 #include <rcl/rcl.h>

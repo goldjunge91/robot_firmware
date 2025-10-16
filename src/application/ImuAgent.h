@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Agent.h"
-#include "hal/hardware/Icm20948Simple.hpp"
+#include "hal/hardware/imu-driver/ICM-20948/icm20948_spi.hpp"
 #include "shared/Vector3f.hpp"
 #include "uRosEntities.h"
 

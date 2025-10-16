@@ -101,7 +101,7 @@ void ImuAgent::addToExecutor(rclc_executor_t* executor)
 // TODO: REMOVE MAgic numbers
 void ImuAgent::run()
 {
-  printf("[ImuAgent] ✅ Task started (target rate: %u Hz)\n", 1000 / publish_period_ms_);
+  printf("[ImuAgent] Task started (target rate: %u Hz)\n", 1000 / publish_period_ms_);
   static uint32_t sample_count = 0;
   static uint32_t publish_count = 0;
   static uint32_t error_count = 0;

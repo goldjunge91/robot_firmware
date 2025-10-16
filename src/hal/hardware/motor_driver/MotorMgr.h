@@ -18,8 +18,8 @@
     #include "hardware/pwm.h"
 #endif
 
-#include "GPIOInputMgr.h"
-#include "GPIOObserver.h"
+#include "hal/GPIOInputMgr.h"
+#include "hal/GPIOObserver.h"
 
 #define SPEED_MIN 2.3
 #define SPEED_MAX 5.0

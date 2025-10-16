@@ -1,9 +1,8 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.12)
 
+# Change your executable name to something creative!
 set(NAME my_firmware) # <-- Name your project/executable here!
 
-# Auto-fetch Pico SDK if not found
-set(PICO_SDK_FETCH_FROM_GIT ON)
 include(pico_sdk_import.cmake)
 
 # Gooey boilerplate
@@ -14,51 +13,20 @@ set(CMAKE_CXX_STANDARD 17)
 # Initialize the SDK
 pico_sdk_init()
 
-set (FREERTOS_KERNEL_PATH "${CMAKE_CURRENT_LIST_DIR}/lib/FreeRTOS-Kernel" CACHE STRING "Common Lib" FORCE)
-
-# Erstelle "INTERFACE"-Target nur für die Konfiguration.
-add_library(freertos_config INTERFACE)
-
-# 2. Füge das Verzeichnis mit der FreeRTOSConfig.h NUR zu diesem Target hinzu.
-target_include_directories(freertos_config SYSTEM INTERFACE
-    "${CMAKE_CURRENT_LIST_DIR}/port/FreeRTOS-Kernel"
-)
-
-target_compile_definitions(freertos_config INTERFACE
-    projCOVERAGE_TEST=0
-    configNUMBER_OF_CORES=2
-    configUSE_CORE_AFFINITY=1
-    # configRUN_MULTIPLE_PRIORITIES=0
-    # configTICK_CORE=0
-    # Undefine SMP flag to prevent SMP-specific code
-    # FREE_RTOS_KERNEL_SMP=0
-)
-
+SET(FREERTOS_KERNEL_PATH "${CMAKE_CURRENT_LIST_DIR}/lib/FreeRTOS-Kernel" CACHE STRING "Common Lib")
+SET(FREERTOS_CONFIG_FILE_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/port/FreeRTOS-Kernel" CACHE STRING "Local Config")
+include_directories("${FREERTOS_CONFIG_FILE_DIRECTORY}") 
 include(FreeRTOS_Kernel_import.cmake)
 
-set(MICRO_ROS_PATH "${CMAKE_CURRENT_LIST_DIR}/lib/micro_ros_raspberrypi_pico_sdk/" CACHE STRING "Common Lib")
+SET(MICRO_ROS_PATH "${CMAKE_CURRENT_LIST_DIR}/lib/micro_ros_raspberrypi_pico_sdk/" CACHE STRING "Common Lib")
 include(micro_ros.cmake)
 
-set(EIGEN_PATH "${CMAKE_CURRENT_LIST_DIR}/lib/eigen/" CACHE STRING "Common Lib")
+SET(EIGEN_PATH "${CMAKE_CURRENT_LIST_DIR}/lib/eigen/" CACHE STRING "Common Lib")
 include(eigen_import.cmake)
 
-# set(DISTANCE_SENSOR_PATH "${CMAKE_CURRENT_LIST_DIR}/lib/pico-distance-sensor/" CACHE STRING "Common Lib")
-# include(distance_sensor.cmake)
-
 add_subdirectory(src)
-add_subdirectory(port)
 
-# ==============================================================================
-# Unit Tests (only when not cross-compiling for Pico)
-# ==============================================================================
-option(BUILD_TESTS "Build unit tests" OFF)
-
-if(BUILD_TESTS)
-    message(STATUS "Building unit tests...")
-    add_subdirectory(tests)
-endif()
-
-#set up files for the release packages
+#Set up files for the release packages
 install(CODE "execute_process(COMMAND $ENV{HOME}/bin/picoDeploy.sh ${CMAKE_CURRENT_BINARY_DIR}/src/${NAME}.elf)")
 
 # Set up files for the release packages

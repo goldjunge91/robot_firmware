@@ -1,5 +1,5 @@
 /*
- * BaseMotorsAgent.h
+ * BaseMotorsAgentInterface.h
  *
  * Abstract base class for motor agents
  */
@@ -9,7 +9,7 @@
 
 #include "pico/stdlib.h"
 #include "Agent.h"
-#include "MotorMgr.h"
+#include "hal/hardware/motor_driver/MotorMgr.h"
 #include "uRosEntities.h"
 
 /**

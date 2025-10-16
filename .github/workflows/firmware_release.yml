@@ -1,8 +1,8 @@
 name: Firmware Release
 
 # Trigger:
-# 1. workflow_dispatch: Manueller Start mit Angabe der Versionserhöhung (patch, minor, major).
-# 2. push: Wird ausgeführt, wenn ein Commit auf den 'main'-Branch gepusht wird.
+# 1. workflow_dispatch: Manual trigger with version bump selection
+# 2. push to main: Automatic release when code is merged to main branch
 on:
   workflow_dispatch:
     inputs:
@@ -20,7 +20,7 @@ on:
 
 env:
   PICO_SDK_PATH: ~/pico/pico-sdk
-  SDK_VERSION: 1.5.1 # Dieselbe SDK-Version wie im CI-Workflow
+  SDK_VERSION: 1.5.1
 
 jobs:
   # Job 1: Ermittelt, ob und wie die Version erhöht werden soll
@@ -56,55 +56,53 @@ jobs:
             echo "bump=${{ steps.get-bump-commit.outputs.bump }}" >> $GITHUB_OUTPUT
           fi
 
-  # Job 2: Erstellt das Release, aber nur wenn eine Versionserhöhung nötig ist
+  # Job 2: Build and create release (only if version bump is needed)
   build-and-release:
     name: Build and Create Release
     runs-on: ubuntu-latest
     needs: determine-version
-    # Wichtige Bedingung: Läuft nur, wenn 'determine-version' einen Bump ('patch', 'minor', 'major') ermittelt hat
     if: needs.determine-version.outputs.bump != 'none' && needs.determine-version.outputs.bump != ''
     permissions:
-      contents: write # Notwendig, um Tags zu pushen und ein Release zu erstellen
+      contents: write
     steps:
-      - name: 1. Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Notwendig für das Tagging
+          fetch-depth: 0
+          submodules: recursive  # Initialize FreeRTOS, micro-ROS, Eigen
 
-      # Schritte zum Erstellen des neuen Versions-Tags
-      - name: 2. Get latest SemVer tag
+      - name: Get latest SemVer tag
         id: get-latest-tag
         uses: actions-ecosystem/action-get-latest-tag@v1
         with:
           semver_only: true
           initial_version: v0.0.0
 
-      - name: 3. Bump version
+      - name: Bump version
         id: bump-semver
         uses: actions-ecosystem/action-bump-semver@v1
         with:
           current_version: ${{ steps.get-latest-tag.outputs.tag }}
           level: ${{ needs.determine-version.outputs.bump }}
 
-      - name: 4. Create and push new tag
+      - name: Create and push new tag
         run: |
           git tag ${{ steps.bump-semver.outputs.new_version }}
           git push origin ${{ steps.bump-semver.outputs.new_version }}
 
-      # Build-Schritte (identisch zum CI-Workflow, hier wiederverwendet)
-      - name: 5. Cache Pico SDK
+      - name: Cache Pico SDK
         id: cache-pico-sdk
         uses: actions/cache@v3
         with:
           path: ${{ env.PICO_SDK_PATH }}
           key: ${{ runner.os }}-pico-sdk-${{ env.SDK_VERSION }}
 
-      - name: 6. Setup toolchain
+      - name: Setup ARM toolchain
         run: |
           sudo apt update
           sudo apt install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
 
-      - name: 7. Setup Pico SDK
+      - name: Setup Pico SDK
         if: steps.cache-pico-sdk.outputs.cache-hit != 'true'
         run: |
           mkdir -p $(dirname ${{ env.PICO_SDK_PATH }})
@@ -112,22 +110,31 @@ jobs:
           cd ${{ env.PICO_SDK_PATH }}
           git submodule update --init
 
-      - name: 8. Compile firmware
+      - name: Build firmware
         run: |
-          cd ${{ github.workspace }}
           mkdir build
           cd build
           cmake ..
-          make
+          make -j$(nproc)
 
-      # Schritt zum Veröffentlichen des GitHub-Releases
-      - name: 9. Create GitHub Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.bump-semver.outputs.new_version }}
-          name: "Release ${{ steps.bump-semver.outputs.new_version }}"
-          body: "Firmware release based on commit ${{ needs.determine-version.outputs.commit_sha }}."
-          files: |
-            build/*.uf2
-            build/*.bin
-            build/*.hex
+          name: "my_steel Robot Firmware ${{ steps.bump-semver.outputs.new_version }}"
+          body: |
+            ## my_steel Robot Firmware Release
+            
+            **Version:** ${{ steps.bump-semver.outputs.new_version }}
+            **Commit:** ${{ needs.determine-version.outputs.commit_sha }}
+            
+            ### Installation
+            1. Download `my_firmware.uf2`
+            2. Hold BOOTSEL button on Pico while connecting USB
+            3. Drag and drop the .uf2 file to the RPI-RP2 drive
+            
+            ### Changes
+            See commit history for details.
+          files: build/src/my_firmware.uf2
+          draft: false
+          prerelease: false

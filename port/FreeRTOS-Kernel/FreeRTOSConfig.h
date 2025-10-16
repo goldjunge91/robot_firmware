@@ -30,19 +30,19 @@
 
 #include "rp2040_config.h"
 
- /*-----------------------------------------------------------
-  * Application specific definitions.
-  *
-  * These definitions should be adjusted for your particular hardware and
-  * application requirements.
-  *
-  * THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
-  * FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE.
-  *
-  * See http://www.freertos.org/a00110.html
-  *----------------------------------------------------------*/
+/*-----------------------------------------------------------
+ * Application specific definitions.
+ *
+ * These definitions should be adjusted for your particular hardware and
+ * application requirements.
+ *
+ * THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
+ * FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE.
+ *
+ * See http://www.freertos.org/a00110.html
+ *----------------------------------------------------------*/
 
-  /* Scheduler Related */
+/* Scheduler Related */
 #define configUSE_PREEMPTION                    1
 #define configUSE_TICKLESS_IDLE                 0
 #define configUSE_IDLE_HOOK                     0
@@ -109,6 +109,7 @@
 
 #if FREE_RTOS_KERNEL_SMP // set by the RP2040 SMP port of FreeRTOS
 /* SMP port only */
+// #define configNUM_CORES                         2
 #define configNUMBER_OF_CORES                   2
 #define configTICK_CORE                         0
 #define configRUN_MULTIPLE_PRIORITIES           1
@@ -118,18 +119,9 @@
 /* RP2040 specific */
 #define configSUPPORT_PICO_SYNC_INTEROP         1
 #define configSUPPORT_PICO_TIME_INTEROP         1
-#if defined(FREE_RTOS_KERNEL_SMP) || !defined(configUSE_CORE_AFFINITY)
-/*
- * Ensure configUSE_CORE_AFFINITY is defined. For RP2040 SMP-related test
- * builds we require core affinity support, so set to 1. If the SMP port
- * defines FREE_RTOS_KERNEL_SMP it will keep 1; otherwise default to 1 for
- * test/board builds that enable SMP features (matching Pico SDK expectations).
- */
-#define configUSE_CORE_AFFINITY 1
-#endif
 
 #include <assert.h>
- /* Define to trap errors during development. */
+/* Define to trap errors during development. */
 #define configASSERT(x)                         assert(x)
 
 /* Set the following definitions to 1 to include the API function, or zero

@@ -11,7 +11,7 @@
 #define FIRMWARE_SRC_ROBOTCONTROLLER_H_
 
 #include "Agent.h"
-#include "BaseMotorsAgent.h"
+#include "BaseMotorsAgentInterface.h"
 #include "uRosEntities.h"
 
 extern "C" {

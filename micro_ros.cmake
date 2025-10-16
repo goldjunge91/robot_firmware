@@ -6,8 +6,6 @@ else ()
 endif ()
 
 add_library(micro_ros STATIC)
-
-# TODO: WIeso iist das nicht in benutzung
 #target_sources(micro_ros PUBLIC
    # ${MICRO_ROS_PATH}/pico_uart_transport.c
 #)

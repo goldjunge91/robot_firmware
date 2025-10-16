@@ -1,4 +1,4 @@
-#include "hal/hardware/Icm20948Simple.hpp"
+#include "icm20948_spi.hpp"
 
 #include "pico/stdlib.h"
 

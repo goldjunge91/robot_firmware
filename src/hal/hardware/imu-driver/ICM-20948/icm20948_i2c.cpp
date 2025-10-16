@@ -1,4 +1,4 @@
-#include "hal/hardware/Icm20948.hpp"
+#include "icm20948_i2c.hpp"
 
 #include <hardware/gpio.h>
 #include <hardware/i2c.h>

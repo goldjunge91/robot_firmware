@@ -10,8 +10,8 @@
 
 #include "pico/stdlib.h"
 #include "Agent.h"
-#include "MotorPID.h"
-#include "BaseMotorsAgent.h"
+#include "hal/hardware/motor_driver/MotorPID.h"
+#include "BaseMotorsAgentInterface.h"
 #include "uRosEntities.h"
 
 extern"C"{
