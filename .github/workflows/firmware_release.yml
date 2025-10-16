@@ -16,7 +16,7 @@ on:
           - minor
           - major
   push:
-    branches: [ "main", "tb6612_fw" ]
+    branches: [ "main" ]
 
 env:
   PICO_SDK_PATH: ~/pico/pico-sdk
