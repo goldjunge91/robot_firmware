@@ -1,0 +1,18 @@
+[submodule "lib/micro_ros_raspberrypi_pico_sdk"]
+	path = lib/micro_ros_raspberrypi_pico_sdk
+	url = https://github.com/goldjunge91/micro_ros_raspberrypi_pico_sdk.git
+	branch = humble
+[submodule "lib/FreeRTOS-Kernel"]
+	path = lib/FreeRTOS-Kernel
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel
+	branch = V10.6.2
+[submodule "lib/FreeRTOS"]
+	path = lib/FreeRTOS
+	url = https://github.com/FreeRTOS/FreeRTOS.git
+	branch = 202411.00
+[submodule "lib/eigen"]
+	path = lib/eigen
+	url = https://gitlab.com/libeigen/eigen
+[submodule "lib/pico-distance-sensor"]
+	path = lib/pico-distance-sensor
+	url = https://github.com/dangarbri/pico-distance-sensor
